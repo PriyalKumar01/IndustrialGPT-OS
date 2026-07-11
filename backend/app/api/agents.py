@@ -13,29 +13,48 @@ async def query_copilot(payload: QueryRequest):
     """
     try:
         # Execute LangGraph state machine
-        # inputs = {"query": payload.query, "user_role": payload.role, "chat_history": payload.history}
-        # result = await agent_executor.ainvoke(inputs)
+        inputs = {
+            "query": payload.query,
+            "user_role": payload.role,
+            "chat_history": payload.history,
+            "planner_instructions": "",
+            "retrieved_chunks": [],
+            "neo4j_subgraph": {},
+            "maintenance_diagnostics": {},
+            "compliance_checks": {},
+            "rca_results": {},
+            "synthesized_answer": "",
+            "confidence_score": 0.0,
+            "citations": []
+        }
+        result = await agent_executor.ainvoke(inputs)
         
-        # Seeded output mock conforming to types
-        # This matches the signature of apiService.askAICopilot exactly
+        # Build Response
+        citations = [
+            Citation(text=c["text"], source=c["source"], link=c["link"])
+            for c in result.get("citations", [])
+        ]
+        
+        kg = result.get("neo4j_subgraph", {"nodes": [], "edges": []})
+        maint = result.get("maintenance_diagnostics", {})
+        comp = result.get("compliance_checks", {})
+        rca = result.get("rca_results", {})
+        
         return QueryResponse(
-            answer="### Executive Summary\nFeed water pump P-101A is experiencing cavitational wear...",
-            citations=[
-                Citation(
-                    text="Centrifugal pump cavitation limits",
-                    source="Feed_Water_Pump_P101A_Vendor_Manual.pdf",
-                    link="doc-1#L123"
-                )
-            ],
-            confidence=0.93,
-            related_assets=["P-101A"],
-            related_incidents=["RCA-401"],
+            answer=result.get("synthesized_answer", "No answer synthesized."),
+            citations=citations,
+            confidence=result.get("confidence_score", 0.93),
+            related_assets=kg.get("nodes", []),
+            related_incidents=[rca.get("historical_similar", "INC-401")] if rca.get("historical_similar") else [],
             kg_path=KgPath(
-                nodes=["P-101A", "INC-401", "HWP-089"],
-                edges=["REQUIRES_PERMIT", "RELATED_INCIDENT"]
+                nodes=kg.get("nodes", []),
+                edges=kg.get("edges", [])
             ),
-            alternative_actions=["Throttle feedwater flow by 5% to raise NPSHa."],
-            compliance_impact="Operating without valid Hot Work Permit violates OISD-STD-117 regulations."
+            alternative_actions=[
+                maint.get("diagnosis", "Switch to auxiliary duty pump."),
+                "Inspect safety tags."
+            ],
+            compliance_impact=comp.get("findings", "No compliance issues flagged.")
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
