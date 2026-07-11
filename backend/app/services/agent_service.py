@@ -124,3 +124,5 @@ workflow.add_edge("synthesizer", END)
 
 # Compile LangGraph app
 agent_executor = workflow.compile()
+
+# Node design: LangGraph nodes act as micro-agents. Future iterations will wire up real LLM calls here.
