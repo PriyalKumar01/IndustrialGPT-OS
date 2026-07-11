@@ -55,6 +55,16 @@ Choose one of the suggestions below or enter a custom query to start the LangGra
   const [activeRightTab, setActiveRightTab] = useState<"citations" | "explain" | "subgraph">("citations");
   const [activeCaseId, setActiveCaseId] = useState<string>("case-new");
   
+  const [leftPanelOpen, setLeftPanelOpen] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth >= 1280) {
+      setLeftPanelOpen(true);
+      setRightPanelOpen(true);
+    }
+  }, []);
+
   // Agent Stream State
   const [activeAgentStep, setActiveAgentStep] = useState<AgentStep | null>(null);
   const [agentThinkingLogs, setAgentThinkingLogs] = useState<string[]>([]);
@@ -151,10 +161,19 @@ Choose one of the suggestions below or enter a custom query to start the LangGra
   };
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-100px)] overflow-hidden">
+    <div className="flex gap-6 h-[calc(100vh-100px)] overflow-hidden relative">
       
       {/* 1. Left Panel: Conversation History & Cases */}
-      <div className="w-56 bg-white border border-gray-200 rounded-sharp shadow-subtle p-4 flex flex-col gap-4 shrink-0">
+      {leftPanelOpen && (
+        <div 
+          onClick={() => setLeftPanelOpen(false)}
+          className="fixed inset-0 z-20 bg-black/40 md:hidden animate-fade-in"
+        />
+      )}
+      <div className={`bg-white border border-gray-200 rounded-sharp shadow-subtle p-4 flex flex-col gap-4 shrink-0 transition-all duration-300 z-30
+        ${leftPanelOpen ? "w-56 opacity-100 translate-x-0" : "w-0 opacity-0 overflow-hidden p-0 border-none -translate-x-full md:translate-x-0"}
+        absolute md:static h-full md:h-auto
+      `}>
         <div>
           <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-2">Historical Investigations</span>
           <div className="space-y-1">
@@ -213,12 +232,34 @@ Choose one of the suggestions below or enter a custom query to start the LangGra
       <div className="flex-1 bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden min-w-0">
         
         {/* Chat Header */}
-        <div className="p-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BrainCircuit className="h-5 w-5 text-[#2563EB]" />
-            <span className="font-semibold text-xs text-gray-900 uppercase tracking-wider">Enterprise Copilot Workspace</span>
+        <div className="p-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Toggle Left Case History Button */}
+            <button
+              onClick={() => setLeftPanelOpen(!leftPanelOpen)}
+              className={`p-1.5 rounded hover:bg-gray-200 text-gray-500 hover:text-gray-900 cursor-pointer transition-colors ${leftPanelOpen ? "bg-gray-250 text-gray-950 font-bold" : ""}`}
+              title="Toggle Investigation History"
+            >
+              <Activity className="h-4 w-4" />
+            </button>
+            
+            <div className="flex items-center gap-1.5 min-w-0">
+              <BrainCircuit className="h-4 w-4 text-[#2563EB] shrink-0" />
+              <span className="font-semibold text-[11px] sm:text-xs text-gray-900 uppercase tracking-wider truncate">Enterprise Copilot Workspace</span>
+            </div>
           </div>
-          <span className="text-[10px] text-gray-400 font-mono">Agent Version: {modelConfig.agentVersion}</span>
+          
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[9px] sm:text-[10px] text-gray-400 font-mono hidden xs:inline">Agent Version: {modelConfig.agentVersion}</span>
+            {/* Toggle Right Evidence Panel Button */}
+            <button
+              onClick={() => setRightPanelOpen(!rightPanelOpen)}
+              className={`p-1.5 rounded hover:bg-gray-200 text-gray-500 hover:text-gray-900 cursor-pointer transition-colors ${rightPanelOpen ? "bg-gray-250 text-gray-950 font-bold" : ""}`}
+              title="Toggle Evidence Panel"
+            >
+              <FileText className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Chat Message Thread */}
@@ -338,7 +379,16 @@ Choose one of the suggestions below or enter a custom query to start the LangGra
       </div>
 
       {/* 3. Right Panel: Evidence & Explainability */}
-      <div className="w-80 bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden shrink-0">
+      {rightPanelOpen && (
+        <div 
+          onClick={() => setRightPanelOpen(false)}
+          className="fixed inset-0 z-20 bg-black/40 md:hidden animate-fade-in"
+        />
+      )}
+      <div className={`bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden shrink-0 transition-all duration-300 z-30
+        ${rightPanelOpen ? "w-80 opacity-100 translate-x-0" : "w-0 opacity-0 overflow-hidden border-none translate-x-full md:translate-x-0"}
+        absolute right-0 md:static h-full md:h-auto
+      `}>
         {/* Right Header Navigation Tabs */}
         <div className="flex border-b border-gray-200 bg-gray-50 text-[10px] font-bold uppercase tracking-wider">
           {(["citations", "explain", "subgraph"] as const).map(tab => (

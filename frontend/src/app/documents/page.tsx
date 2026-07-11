@@ -319,153 +319,160 @@ function DocumentCenterContent() {
 
         {/* Right Side: Metadata Inspector */}
         {selectedDoc && (
-          <div className="w-96 bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden shrink-0">
-            {/* Inspector Header */}
-            <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-[#2563EB]" />
-                <span className="font-semibold text-xs text-gray-900 uppercase tracking-wider">Metadata Inspector</span>
-              </div>
-              <button 
-                onClick={() => { setSelectedDoc(null); setCompareVersion(null); }} 
-                className="text-gray-400 hover:text-gray-900"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Inspector Contents */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
-              <div>
-                <h3 className="font-bold text-gray-900 truncate">{selectedDoc.name}</h3>
-                <div className="mt-1 text-gray-500 flex items-center justify-between">
-                  <span>Author: {selectedDoc.author}</span>
-                  <span>Ver: {selectedDoc.version}</span>
+          <>
+            {/* Backdrop for mobile detail drawer */}
+            <div 
+              className="fixed inset-0 z-20 bg-black/50 md:hidden" 
+              onClick={() => { setSelectedDoc(null); setCompareVersion(null); }} 
+            />
+            <div className="w-full sm:w-96 bg-white border border-gray-200 rounded-sharp shadow-panel flex flex-col overflow-hidden shrink-0 fixed md:static inset-y-0 right-0 z-30 h-full md:h-auto">
+              {/* Inspector Header */}
+              <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-[#2563EB]" />
+                  <span className="font-semibold text-xs text-gray-900 uppercase tracking-wider">Metadata Inspector</span>
                 </div>
+                <button 
+                  onClick={() => { setSelectedDoc(null); setCompareVersion(null); }} 
+                  className="text-gray-400 hover:text-gray-900 cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
 
-              {/* Version History Tab */}
-              <div className="border border-gray-200 rounded p-3 bg-gray-50 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-gray-700">Document Version History</span>
-                  <button 
-                    onClick={() => handleVersionBump(selectedDoc.id)}
-                    className="text-[10px] text-[#2563EB] font-bold flex items-center gap-1 hover:underline"
-                  >
-                    <Plus className="h-3 w-3" /> Bump Version
-                  </button>
+              {/* Inspector Contents */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
+                <div>
+                  <h3 className="font-bold text-gray-900 truncate">{selectedDoc.name}</h3>
+                  <div className="mt-1 text-gray-500 flex items-center justify-between">
+                    <span>Author: {selectedDoc.author}</span>
+                    <span>Ver: {selectedDoc.version}</span>
+                  </div>
                 </div>
-                <div className="space-y-2 mt-1 max-h-32 overflow-y-auto">
-                  {selectedDoc.versions.map((ver, idx) => (
-                    <div 
-                      key={ver.version} 
-                      onClick={() => idx > 0 ? setCompareVersion(ver) : setCompareVersion(null)}
-                      className={`p-1.5 border rounded cursor-pointer transition-all-custom flex items-center justify-between ${
-                        compareVersion?.version === ver.version ? "bg-blue-50 border-blue-300" : "bg-white hover:bg-gray-100"
-                      }`}
+
+                {/* Version History Tab */}
+                <div className="border border-gray-200 rounded p-3 bg-gray-50 flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-gray-700">Document Version History</span>
+                    <button 
+                      onClick={() => handleVersionBump(selectedDoc.id)}
+                      className="text-[10px] text-[#2563EB] font-bold flex items-center gap-1 hover:underline cursor-pointer"
                     >
-                      <div className="flex flex-col min-w-0">
-                        <span className="font-bold text-gray-900">{ver.version}</span>
-                        <span className="text-[10px] text-gray-500 truncate">{ver.comment}</span>
+                      <Plus className="h-3 w-3" /> Bump Version
+                    </button>
+                  </div>
+                  <div className="space-y-2 mt-1 max-h-32 overflow-y-auto">
+                    {selectedDoc.versions.map((ver, idx) => (
+                      <div 
+                        key={ver.version} 
+                        onClick={() => idx > 0 ? setCompareVersion(ver) : setCompareVersion(null)}
+                        className={`p-1.5 border rounded cursor-pointer transition-all-custom flex items-center justify-between ${
+                          compareVersion?.version === ver.version ? "bg-blue-50 border-blue-300" : "bg-white hover:bg-gray-100"
+                        }`}
+                      >
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-bold text-gray-900">{ver.version}</span>
+                          <span className="text-[10px] text-gray-500 truncate">{ver.comment}</span>
+                        </div>
+                        <div className="text-right text-[9px] text-gray-400 shrink-0">
+                          <span>{new Date(ver.date).toLocaleDateString()}</span>
+                        </div>
                       </div>
-                      <div className="text-right text-[9px] text-gray-400 shrink-0">
-                        <span>{new Date(ver.date).toLocaleDateString()}</span>
+                    ))}
+                  </div>
+
+                  {/* Diff Viewer Trigger */}
+                  {compareVersion && (
+                    <div className="mt-2.5 p-2 bg-yellow-50 border border-yellow-200 rounded text-[11px]">
+                      <div className="flex justify-between items-center font-bold text-yellow-800">
+                        <span>Diff Mode: {selectedDoc.version} vs {compareVersion.version}</span>
+                        <button onClick={() => setCompareVersion(null)} className="text-gray-400 hover:text-gray-900 cursor-pointer">×</button>
+                      </div>
+                      <div className="mt-1 space-y-1 text-gray-700 font-mono">
+                        <div className="text-red-700">- Previous version clearance limits: Max Temp: 165°C</div>
+                        <div className="text-green-700">+ Updated limits: Max Temp: 180°C (Section 2.1)</div>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
 
-                {/* Diff Viewer Trigger */}
-                {compareVersion && (
-                  <div className="mt-2.5 p-2 bg-yellow-50 border border-yellow-200 rounded text-[11px]">
-                    <div className="flex justify-between items-center font-bold text-yellow-800">
-                      <span>Diff Mode: {selectedDoc.version} vs {compareVersion.version}</span>
-                      <button onClick={() => setCompareVersion(null)} className="text-gray-400 hover:text-gray-900">×</button>
-                    </div>
-                    <div className="mt-1 space-y-1 text-gray-700 font-mono">
-                      <div className="text-red-700">- Previous version clearance limits: Max Temp: 165°C</div>
-                      <div className="text-green-700">+ Updated limits: Max Temp: 180°C (Section 2.1)</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Extracted Entity Tags */}
-              <div className="space-y-3.5">
-                <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Extracted Entities (Interactive)</span>
-                
-                {/* Equipment IDs */}
-                <div className="space-y-1">
-                  <span className="text-gray-500 block text-[10px]">Equipment IDs</span>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {selectedDoc.extractedMetadata.equipmentIds.map(tag => (
-                      <span key={tag} className="px-2 py-0.5 rounded bg-blue-50 text-[#2563EB] border border-blue-200 font-mono cursor-pointer hover:bg-blue-100">
-                        {tag}
-                      </span>
-                    ))}
-                    {selectedDoc.extractedMetadata.equipmentIds.length === 0 && <span className="text-gray-400 italic">None</span>}
-                  </div>
-                </div>
-
-                {/* Regulations */}
-                <div className="space-y-1">
-                  <span className="text-gray-500 block text-[10px]">Compliance Codes & Regulations</span>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {selectedDoc.extractedMetadata.regulations.map(tag => (
-                      <span key={tag} className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 cursor-pointer hover:bg-purple-100">
-                        {tag}
-                      </span>
-                    ))}
-                    {selectedDoc.extractedMetadata.regulations.length === 0 && <span className="text-gray-400 italic">None</span>}
-                  </div>
-                </div>
-
-                {/* Operating Limits */}
-                <div className="space-y-1">
-                  <span className="text-gray-500 block text-[10px]">Extracted Operating Limits</span>
+                {/* Extracted Entity Tags */}
+                <div className="space-y-3.5">
+                  <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Extracted Entities (Interactive)</span>
+                  
+                  {/* Equipment IDs */}
                   <div className="space-y-1">
-                    {selectedDoc.extractedMetadata.operatingLimits.map(tag => (
-                      <div key={tag} className="px-2 py-1 rounded bg-yellow-50 text-yellow-800 border border-yellow-200 font-mono">
-                        {tag}
-                      </div>
-                    ))}
-                    {selectedDoc.extractedMetadata.operatingLimits.length === 0 && <span className="text-gray-400 italic">None</span>}
+                    <span className="text-gray-500 block text-[10px]">Equipment IDs</span>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {selectedDoc.extractedMetadata.equipmentIds.map(tag => (
+                        <span key={tag} className="px-2 py-0.5 rounded bg-blue-50 text-[#2563EB] border border-blue-200 font-mono cursor-pointer hover:bg-blue-100">
+                          {tag}
+                        </span>
+                      ))}
+                      {selectedDoc.extractedMetadata.equipmentIds.length === 0 && <span className="text-gray-400 italic">None</span>}
+                    </div>
                   </div>
-                </div>
 
-                {/* Safety Instructions */}
-                <div className="space-y-1">
-                  <span className="text-gray-500 block text-[10px]">Extracted Safety Instructions</span>
-                  <div className="space-y-1.5">
-                    {selectedDoc.extractedMetadata.safetyInstructions.map((tag, idx) => (
-                      <div key={idx} className="flex gap-2 items-start text-gray-700 bg-gray-50 p-2 border border-gray-200 rounded">
-                        <ShieldAlert className="h-4 w-4 text-[#DC2626] shrink-0 mt-0.5" />
-                        <span>{tag}</span>
-                      </div>
-                    ))}
-                    {selectedDoc.extractedMetadata.safetyInstructions.length === 0 && <span className="text-gray-400 italic">None</span>}
+                  {/* Regulations */}
+                  <div className="space-y-1">
+                    <span className="text-gray-500 block text-[10px]">Compliance Codes & Regulations</span>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {selectedDoc.extractedMetadata.regulations.map(tag => (
+                        <span key={tag} className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 cursor-pointer hover:bg-purple-100">
+                          {tag}
+                        </span>
+                      ))}
+                      {selectedDoc.extractedMetadata.regulations.length === 0 && <span className="text-gray-400 italic">None</span>}
+                    </div>
+                  </div>
+
+                  {/* Operating Limits */}
+                  <div className="space-y-1">
+                    <span className="text-gray-500 block text-[10px]">Extracted Operating Limits</span>
+                    <div className="space-y-1">
+                      {selectedDoc.extractedMetadata.operatingLimits.map(tag => (
+                        <div key={tag} className="px-2 py-1 rounded bg-yellow-50 text-yellow-800 border border-yellow-200 font-mono">
+                          {tag}
+                        </div>
+                      ))}
+                      {selectedDoc.extractedMetadata.operatingLimits.length === 0 && <span className="text-gray-400 italic">None</span>}
+                    </div>
+                  </div>
+
+                  {/* Safety Instructions */}
+                  <div className="space-y-1">
+                    <span className="text-gray-500 block text-[10px]">Extracted Safety Instructions</span>
+                    <div className="space-y-1.5">
+                      {selectedDoc.extractedMetadata.safetyInstructions.map((tag, idx) => (
+                        <div key={idx} className="flex gap-2 items-start text-gray-700 bg-gray-50 p-2 border border-gray-200 rounded">
+                          <ShieldAlert className="h-4 w-4 text-[#DC2626] shrink-0 mt-0.5" />
+                          <span>{tag}</span>
+                        </div>
+                      ))}
+                      {selectedDoc.extractedMetadata.safetyInstructions.length === 0 && <span className="text-gray-400 italic">None</span>}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Inspector Footer Actions */}
-            <div className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
-              <Link 
-                href="/copilot"
-                className="flex-1 flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded py-1.5 text-xs font-semibold shadow-sm focus:outline-none"
-              >
-                <span>Ask Copilot</span>
-              </Link>
-              <button 
-                onClick={() => alert("Downloading document pdf binary file from secure S3 bucket...")}
-                className="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded p-1.5"
-                title="Download Document"
-              >
-                <Download className="h-4 w-4" />
-              </button>
+              {/* Inspector Footer Actions */}
+              <div className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+                <Link 
+                  href="/copilot"
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded py-1.5 text-xs font-semibold shadow-sm focus:outline-none"
+                >
+                  <span>Ask Copilot</span>
+                </Link>
+                <button 
+                  onClick={() => alert("Downloading document pdf binary file from secure S3 bucket...")}
+                  className="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded p-1.5 cursor-pointer"
+                  title="Download Document"
+                >
+                  <Download className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-          </div>
+          </>
         )}
 
       </div>

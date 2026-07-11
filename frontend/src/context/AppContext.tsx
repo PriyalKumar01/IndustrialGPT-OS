@@ -33,6 +33,12 @@ interface AppContextType {
   // AI Configuration
   modelConfig: AIModelConfig;
   updateModelConfig: (config: Partial<AIModelConfig>) => Promise<void>;
+
+  // Sidebar Layout States
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  mobileSidebarOpen: boolean;
+  setMobileSidebarOpen: (open: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -83,6 +89,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     costPerMillionTokens: 2.50,
     tokenUsage: { input: 14250800, output: 4890300 }
   });
+
+  // Sidebar Layout States
+  const [sidebarCollapsed, setSidebarCollapsedState] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sidebarCollapsed") === "true";
+    }
+    return false;
+  });
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const setSidebarCollapsed = (collapsed: boolean) => {
+    setSidebarCollapsedState(collapsed);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sidebarCollapsed", String(collapsed));
+    }
+  };
 
   // Init Data
   useEffect(() => {
@@ -218,7 +240,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         commandPaletteOpen,
         setCommandPaletteOpen,
         modelConfig,
-        updateModelConfig
+        updateModelConfig,
+        sidebarCollapsed,
+        setSidebarCollapsed,
+        mobileSidebarOpen,
+        setMobileSidebarOpen
       }}
     >
       {children}

@@ -5,11 +5,17 @@ import { useApp } from "@/context/AppContext";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import CommandPalette from "./CommandPalette";
-import { Building, Cpu, RefreshCw, ShieldAlert } from "lucide-react";
+import { Building, RefreshCw } from "lucide-react";
 import { UserRole } from "@/services/types";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, login, logout, users } = useApp();
+  const { 
+    isAuthenticated, 
+    login, 
+    users,
+    mobileSidebarOpen,
+    setMobileSidebarOpen
+  } = useApp();
   const [email, setEmail] = useState("d.chen@industrialgpt.os");
   const [selectedRole, setSelectedRole] = useState<UserRole>("Operations Manager");
   const [loading, setLoading] = useState(false);
@@ -86,7 +92,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full bg-[#2563EB] hover:bg-blue-700 text-white rounded py-2.5 font-bold shadow-sm focus:outline-none flex items-center justify-center gap-2 cursor-pointer transition-all-custom"
+              className="mt-2 w-full bg-[#2563EB] hover:bg-blue-700 text-white rounded py-2.5 font-bold shadow-sm focus:outline-none flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
             >
               {loading ? (
                 <>
@@ -100,7 +106,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </form>
 
           {/* Footer security labels */}
-          <div className="p-4 bg-gray-50 border-t border-gray-200 text-center text-[10px] text-gray-400 select-none">
+          <div className="p-4 bg-gray-50 border-t border-gray-250 text-center text-[10px] text-gray-400 select-none">
             This terminal is protected by JWT access tokens. Authorized access only.
             <div className="font-bold text-gray-500 mt-1 uppercase tracking-wider">Audit logging is active</div>
           </div>
@@ -110,7 +116,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
+    <div className="flex h-screen w-screen overflow-hidden relative">
+      {/* Mobile Drawer Backdrop Overlay */}
+      {mobileSidebarOpen && (
+        <div 
+          onClick={() => setMobileSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/50 md:hidden transition-opacity duration-300"
+        />
+      )}
+
       {/* Persistent Left Sidebar */}
       <Sidebar />
       
@@ -120,7 +134,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <Header />
         
         {/* Scrollable Viewport */}
-        <main className="flex-1 overflow-y-auto bg-[#F7F8FA] p-6">
+        <main className="flex-1 overflow-y-auto bg-[#F7F8FA] p-4 sm:p-6">
           {children}
         </main>
       </div>
