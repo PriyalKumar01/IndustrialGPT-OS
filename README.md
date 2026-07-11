@@ -3,7 +3,7 @@
 
 ---
 
-[![GitHub license](https://img.shields.io/github/license/PriyalKumar01/IndustrialGPT-OS?style=flat-sharp)](https://github.com/PriyalKumar01/IndustrialGPT-OS/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-sharp)](https://github.com/PriyalKumar01/IndustrialGPT-OS/blob/main/LICENSE)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016-blue?style=flat-sharp&logo=nextdotjs)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-green?style=flat-sharp&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Neo4j](https://img.shields.io/badge/GraphDB-Neo4j%20AuraDB-red?style=flat-sharp&logo=neo4j)](https://neo4j.com/)
