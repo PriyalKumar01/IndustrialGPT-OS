@@ -311,3 +311,172 @@ export default function DashboardPage() {
         <div className="bg-white border border-gray-200 rounded-sharp-lg p-5 shadow-subtle lg:col-span-2 flex flex-col justify-between h-[360px]">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+              {executiveMode === "executive" ? "ROI savings from AI anomaly detection ($)" : "Regulatory Compliance Index Trends (%)"}
+            </span>
+            <span className="text-[10px] text-gray-400 font-mono">Real-time SCADA telemetry correlation</span>
+          </div>
+          
+          <div className="flex-1 min-h-0 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              {executiveMode === "executive" ? (
+                <AreaChart data={roiSavingsData}>
+                  <defs>
+                    <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#16A34A" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#16A34A" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorLosses" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#DC2626" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#DC2626" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                  <XAxis dataKey="month" stroke="#9CA3AF" fontSize={11} />
+                  <YAxis stroke="#9CA3AF" fontSize={11} />
+                  <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  <Area type="monotone" dataKey="Savings" stroke="#16A34A" fillOpacity={1} fill="url(#colorSavings)" strokeWidth={2} name="Cost Savings" />
+                  <Area type="monotone" dataKey="Losses" stroke="#DC2626" fillOpacity={1} fill="url(#colorLosses)" strokeWidth={2} name="Unavoided Downtime Cost" />
+                </AreaChart>
+              ) : (
+                <AreaChart data={complianceTrendsData}>
+                  <defs>
+                    <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563EB" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                  <XAxis dataKey="month" stroke="#9CA3AF" fontSize={11} />
+                  <YAxis domain={[50, 100]} stroke="#9CA3AF" fontSize={11} />
+                  <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  <Area type="monotone" dataKey="Score" stroke="#2563EB" fillOpacity={1} fill="url(#colorScore)" strokeWidth={2} name="Actual Compliance Score" />
+                  <Area type="monotone" dataKey="Target" stroke="#9CA3AF" strokeDasharray="4 4" fill="none" strokeWidth={1} name="Regulator Minimum (90%)" />
+                </AreaChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Secondary Analytics Chart */}
+        <div className="bg-white border border-gray-200 rounded-sharp-lg p-5 shadow-subtle flex flex-col h-[360px]">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+              {executiveMode === "operator" ? "Plant Risk distribution" : "Manuals & SOPs Query Frequency"}
+            </span>
+          </div>
+
+          <div className="flex-1 min-h-0 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              {executiveMode === "operator" ? (
+                <PieChart>
+                  <Pie
+                    data={riskDistributionData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {riskDistributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                  <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: "10px" }} />
+                </PieChart>
+              ) : (
+                <BarChart data={docAccessData} layout="vertical">
+                  <CartesianGrid stroke="#F3F4F6" horizontal={false} />
+                  <XAxis type="number" stroke="#9CA3AF" fontSize={11} />
+                  <YAxis dataKey="name" type="category" stroke="#9CA3AF" fontSize={10} width={80} />
+                  <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                  <Bar dataKey="count" fill="#2563EB" radius={[0, 4, 4, 0]} name="Access Frequency" />
+                </BarChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* ACTIVITY FEED & ACTIVE CRITICAL TELEMETRY MAP */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Recent Activity Feed (Audit Trail) */}
+        <div className="bg-white border border-gray-200 rounded-sharp-lg p-5 shadow-subtle lg:col-span-2 flex flex-col h-[340px]">
+          <div className="flex items-center justify-between mb-3.5 border-b border-gray-100 pb-2">
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">System Audit Trail & Live Activity Feed</span>
+            <span className="h-2 w-2 rounded-full bg-[#16A34A] animate-ping" />
+          </div>
+          <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 text-xs">
+            <div className="flex gap-3 border-l-2 border-red-500 pl-3">
+              <span className="text-gray-400 font-mono tracking-tight">13:45:00</span>
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900">Predictive Anomaly Detected: P-101A vibration exceeded 7.2 mm/s</span>
+                <span className="text-gray-500 text-[11px] mt-0.5">Calculated RUL drops to 42 hrs. Action recommendation routed to Maintenance Engineer Elena Rostova.</span>
+              </div>
+            </div>
+            <div className="flex gap-3 border-l-2 border-yellow-500 pl-3">
+              <span className="text-gray-400 font-mono tracking-tight">12:30:15</span>
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900">Safety Interlock Breach Alert: Boiler Sector 1</span>
+                <span className="text-gray-500 text-[11px] mt-0.5">Hot Work Permit HWP-2026-089 has expired. Auto shutdown sequence override flagged.</span>
+              </div>
+            </div>
+            <div className="flex gap-3 border-l-2 border-[#2563EB] pl-3">
+              <span className="text-gray-400 font-mono tracking-tight">10:00:22</span>
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900">Knowledge Ingest: OISD Fire Protection Std parsed via OCR</span>
+                <span className="text-gray-500 text-[11px] mt-0.5">Created 22 new vector embeddings. Appended 14 equipment-permit nodes in Knowledge Graph.</span>
+              </div>
+            </div>
+            <div className="flex gap-3 border-l-2 border-gray-300 pl-3">
+              <span className="text-gray-400 font-mono tracking-tight">09:15:40</span>
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900">System Sync: IBM Maximo & SAP S/4HANA Database Sync Complete</span>
+                <span className="text-gray-500 text-[11px] mt-0.5">Synchronized 208,800 active maintenance records and billing items. Latency: 42ms.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Quick Links / Active Equipment Alert List */}
+        <div className="bg-white border border-gray-200 rounded-sharp-lg p-5 shadow-subtle flex flex-col h-[340px]">
+          <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Critical Equipment Status</span>
+          </div>
+          <div className="flex-1 overflow-y-auto space-y-2.5">
+            {assets.map((asset) => {
+              const statusColor = 
+                asset.status === "Running" && asset.healthScore >= 80 ? "bg-[#16A34A]" :
+                asset.status === "Running" ? "bg-[#F59E0B]" : "bg-[#DC2626]";
+              return (
+                <div key={asset.id} className="p-2.5 border border-gray-200 rounded-sharp flex flex-col gap-1.5 hover:bg-gray-50 transition-all-custom">
+                  <div className="flex items-center justify-between">
+                    <Link href={`/twin?id=${asset.id}`} className="text-xs font-semibold text-gray-900 hover:text-[#2563EB] hover:underline">
+                      {asset.name} ({asset.id})
+                    </Link>
+                    <span className={`h-2.5 w-2.5 rounded-full ${statusColor}`} title={`Status: ${asset.status}`} />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-gray-500">Health Index:</span>
+                    <span className={`font-semibold ${asset.healthScore < 70 ? "text-red-600" : "text-gray-900"}`}>
+                      {asset.healthScore}%
+                    </span>
+                  </div>
+                  {asset.alerts.length > 0 && (
+                    <div className="mt-1 flex items-center gap-1 text-[10px] text-red-600 font-semibold uppercase">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      <span>{asset.alerts.length} Warnings Active</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
