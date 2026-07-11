@@ -207,3 +207,213 @@ export default function CompliancePage() {
                             </div>
                           );
                         })}
+                      </React.Fragment>
+                    );
+                  })}
+                  
+                  {/* X-axis labels */}
+                  <div /> {/* spacing offset */}
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <div key={idx} className="text-center text-[9px] font-bold text-gray-400 font-mono mt-1">{idx + 1}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Incidents popup from Heatmap click */}
+          {activeCellIncidents.length > 0 && activeCellCoords && (
+            <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-sharp text-xs shrink-0 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4.5 w-4.5 text-[#F59E0B] shrink-0" />
+                <span>
+                  Risks categorized in matrix quadrant **L:{activeCellCoords.l} S:{activeCellCoords.s}**:
+                  <strong className="text-gray-900 font-semibold ml-1.5">{activeCellIncidents.join(", ")}</strong>
+                </span>
+              </div>
+              <button onClick={() => { setActiveCellIncidents([]); setActiveCellCoords(null); }} className="text-gray-400 hover:text-gray-900">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* Missing / Expired Permits Table */}
+          <div className="bg-white border border-gray-200 rounded-sharp p-4 shadow-subtle shrink-0">
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider block mb-3">Vulnerable Permits & Expirations</span>
+            <table className="w-full border-collapse text-left text-xs">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="p-2.5 font-semibold text-gray-500 uppercase tracking-wider">Permit Name</th>
+                  <th className="p-2.5 font-semibold text-gray-500 uppercase tracking-wider">Required For</th>
+                  <th className="p-2.5 font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="p-2.5 font-semibold text-gray-500 uppercase tracking-wider">Due Date</th>
+                  <th className="p-2.5 font-semibold text-gray-500 text-right uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-150">
+                {data.missingPermits.map((permit) => (
+                  <tr key={permit.id} className="hover:bg-gray-50">
+                    <td className="p-2.5 font-semibold text-gray-900">{permit.name}</td>
+                    <td className="p-2.5 text-gray-600 font-mono text-[11px]">{permit.requiredFor}</td>
+                    <td className="p-2.5">
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                        permit.status === "Expired" ? "bg-red-50 text-red-700 border-red-200" :
+                        "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}>
+                        {permit.status}
+                      </span>
+                    </td>
+                    <td className="p-2.5 text-gray-500 font-mono">{permit.dueDate}</td>
+                    <td className="p-2.5 text-right">
+                      <button
+                        onClick={() => handleRenewPermit(permit.name)}
+                        className="text-[#2563EB] hover:underline font-bold text-[11px]"
+                      >
+                        Renew Permit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        {/* Right Side: Corrective Actions lists */}
+        <div className="w-96 bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden shrink-0">
+          
+          {/* Header */}
+          <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-[#2563EB]" />
+              <span className="font-semibold text-xs text-gray-900 uppercase tracking-wider">Corrective Action Tracker</span>
+            </div>
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="text-[#2563EB] hover:text-blue-700 focus:outline-none"
+              title="Add Corrective Action"
+            >
+              <PlusCircle className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Contents */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+            {/* Add form overlay */}
+            {showAddForm && (
+              <form onSubmit={handleAddAction} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-3.5 text-xs">
+                <div className="flex justify-between items-center border-b border-gray-100 pb-1">
+                  <span className="font-bold text-gray-900">New Corrective Action DTO</span>
+                  <button type="button" onClick={() => setShowAddForm(false)} className="text-gray-400 hover:text-gray-900">×</button>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-gray-500 text-[10px]">Action Detail:</label>
+                  <input
+                    type="text"
+                    required
+                    value={newAction.action}
+                    onChange={(e) => setNewAction(prev => ({ ...prev, action: e.target.value }))}
+                    className="border border-gray-300 rounded p-1.5 focus:outline-none focus:border-[#2563EB] bg-white"
+                    placeholder="e.g. Clean suction filters..."
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-gray-500 text-[10px]">Regulation:</label>
+                    <select
+                      value={newAction.regulation}
+                      onChange={(e) => setNewAction(prev => ({ ...prev, regulation: e.target.value }))}
+                      className="border border-gray-300 rounded p-1.5 focus:outline-none bg-white"
+                    >
+                      <option value="Factory Act Sec 21">Factory Act Sec 21</option>
+                      <option value="OISD-STD-117">OISD-STD-117</option>
+                      <option value="PESO Rules">PESO Rules</option>
+                      <option value="ISO 14001">ISO 14001</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-gray-500 text-[10px]">Assignee:</label>
+                    <input
+                      type="text"
+                      required
+                      value={newAction.assignee}
+                      onChange={(e) => setNewAction(prev => ({ ...prev, assignee: e.target.value }))}
+                      className="border border-gray-300 rounded p-1.5 focus:outline-none bg-white"
+                      placeholder="Name"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-[#2563EB] text-white font-semibold py-1.5 rounded hover:bg-blue-700"
+                >
+                  Create Action Item
+                </button>
+              </form>
+            )}
+
+            {/* List */}
+            <div className="space-y-3">
+              {data.correctiveActions.map((action) => {
+                const priorityColor = 
+                  action.priority === "High" ? "text-red-700 bg-red-50 border-red-200" :
+                  action.priority === "Medium" ? "text-amber-700 bg-amber-50 border-amber-200" :
+                  "text-blue-700 bg-blue-50 border-blue-200";
+
+                return (
+                  <div key={action.id} className="p-3 border border-gray-200 rounded-sharp bg-white flex flex-col gap-2 hover:bg-gray-50 transition-all-custom">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-semibold text-gray-950 leading-normal">{action.action}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border shrink-0 ${priorityColor}`}>
+                        {action.priority}
+                      </span>
+                    </div>
+
+                    <div className="text-[10px] text-gray-500 flex justify-between">
+                      <span>Standard: {action.regulation}</span>
+                      <span>Owner: {action.assignee}</span>
+                    </div>
+
+                    <div className="h-px bg-gray-100 my-1" />
+
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="font-mono text-gray-400">Due: {action.deadline}</span>
+                      
+                      {/* Status toggle buttons */}
+                      <div className="flex gap-1.5">
+                        {action.status === "Open" && (
+                          <button
+                            onClick={() => handleUpdateStatus(action.id, "In Progress")}
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-0.5 rounded border border-gray-300 font-semibold"
+                          >
+                            Start Action
+                          </button>
+                        )}
+                        {action.status === "In Progress" && (
+                          <button
+                            onClick={() => handleUpdateStatus(action.id, "Completed")}
+                            className="bg-blue-50 hover:bg-blue-100 text-[#2563EB] px-2 py-0.5 rounded border border-blue-200 font-semibold"
+                          >
+                            Resolve Item
+                          </button>
+                        )}
+                        {action.status === "Completed" && (
+                          <span className="text-[#16A34A] font-bold flex items-center gap-0.5">
+                            <CheckCircle className="h-3.5 w-3.5" /> Resolved
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
