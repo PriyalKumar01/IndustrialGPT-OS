@@ -92,3 +92,35 @@ workflow = StateGraph(AgentState)
 workflow.add_node("planner", planner_node)
 workflow.add_node("retriever", retriever_node)
 workflow.add_node("graph_reader", graph_reader_node)
+workflow.add_node("maintenance_agent", maintenance_node)
+workflow.add_node("compliance_agent", compliance_node)
+workflow.add_node("rca_agent", rca_node)
+workflow.add_node("synthesizer", answer_synthesizer_node)
+
+# Set entry point
+workflow.set_entry_point("planner")
+
+# Define edges
+workflow.add_conditional_edges(
+    "planner",
+    route_to_specialists,
+    {
+        "maintenance_agent": "maintenance_agent",
+        "compliance_agent": "compliance_agent",
+        "rca_agent": "rca_agent"
+    }
+)
+
+# Connect retrievers
+workflow.add_edge("retriever", "synthesizer")
+workflow.add_edge("graph_reader", "synthesizer")
+
+# Re-route specialists to synthesizer
+workflow.add_edge("maintenance_agent", "synthesizer")
+workflow.add_edge("compliance_agent", "synthesizer")
+workflow.add_edge("rca_agent", "synthesizer")
+
+workflow.add_edge("synthesizer", END)
+
+# Compile LangGraph app
+agent_executor = workflow.compile()
