@@ -64,3 +64,70 @@ const standardsCatalog: StandardItem[] = [
     ]
   }
 ];
+
+export default function KnowledgeHubPage() {
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+          <BookOpen className="h-5 w-5 text-[#2563EB]" />
+          <span>Plant Knowledge Hub</span>
+        </h1>
+        <p className="text-xs text-gray-500 mt-1">Review governing regulatory standards, engineering design codes, and safety interlock guidelines.</p>
+      </div>
+
+      {/* Grid List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {standardsCatalog.map((std) => (
+          <div key={std.code} className="bg-white border border-gray-200 rounded-sharp p-5 shadow-subtle flex flex-col justify-between gap-4">
+            <div className="space-y-2">
+              {/* Badges Row */}
+              <div className="flex items-center justify-between">
+                <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                  std.domain === "Mechanical" ? "bg-amber-100 text-amber-800 border-amber-200 border" :
+                  std.domain === "Safety" ? "bg-purple-100 text-purple-800 border-purple-200 border" :
+                  "bg-blue-100 text-blue-800 border-blue-200 border"
+                }`}>
+                  {std.domain} Standard
+                </span>
+                <span className="text-[10px] text-gray-400 font-mono font-semibold">{std.code}</span>
+              </div>
+
+              {/* Title & Description */}
+              <h3 className="font-bold text-gray-900 text-sm leading-tight mt-1">{std.name}</h3>
+              <p className="text-gray-500 text-xs leading-relaxed mt-2">{std.description}</p>
+            </div>
+
+            {/* Critical Rules list */}
+            <div className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2.5">
+              <span className="text-[10px] font-bold text-gray-700 uppercase tracking-wider block flex items-center gap-1">
+                <ShieldAlert className="h-3.5 w-3.5 text-[#DC2626]" /> Critical Operations Safeguards
+              </span>
+              <div className="space-y-1.5 text-xs text-gray-600">
+                {std.criticalRules.map((rule, idx) => (
+                  <div key={idx} className="flex gap-2 items-start leading-normal">
+                    <span className="text-gray-400 shrink-0 font-bold">•</span>
+                    <span>{rule}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Ingestion status footer */}
+            <div className="flex items-center justify-between text-xs border-t border-gray-100 pt-3 mt-1 text-gray-400">
+              <span>Governing applicability: <strong className="text-gray-700 font-semibold">{std.applicability}</strong></span>
+              <Link 
+                href="/documents" 
+                className="text-[#2563EB] hover:underline font-bold text-[11px] flex items-center gap-0.5"
+              >
+                <span>{std.linkedDocsCount} manuals</span>
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
