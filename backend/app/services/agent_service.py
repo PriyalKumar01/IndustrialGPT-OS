@@ -61,3 +61,34 @@ async def compliance_node(state: AgentState) -> Dict[str, Any]:
             "standards_audited": ["OISD-117", "Factory Act Sec 21"],
             "permit_violations": ["HWP-2026-089 expired"]
         }
+    }
+
+async def rca_node(state: AgentState) -> Dict[str, Any]:
+    # Identifies root failure causes and fishbone diagrams
+    return {
+        "rca_results": {
+            "primary_cause": "NPSHa drop causing impeller cavitation",
+            "historical_similar": "INC-204 (82% similarity)"
+        }
+    }
+
+async def answer_synthesizer_node(state: AgentState) -> Dict[str, Any]:
+    # Assembles final comprehensive markdown response with citations
+    return {
+        "synthesized_answer": "Final compiled response content here.",
+        "confidence_score": 0.93,
+        "citations": [{"text": "Cavitation limits", "source": "Manual.pdf", "link": "doc-1#L123"}]
+    }
+
+# 3. Router logic
+def route_to_specialists(state: AgentState) -> List[str]:
+    # Decide which specialist nodes to trigger in parallel
+    return ["maintenance_agent", "compliance_agent", "rca_agent"]
+
+# 4. Graph Construction
+workflow = StateGraph(AgentState)
+
+# Register nodes
+workflow.add_node("planner", planner_node)
+workflow.add_node("retriever", retriever_node)
+workflow.add_node("graph_reader", graph_reader_node)
