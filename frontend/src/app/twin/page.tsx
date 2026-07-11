@@ -210,3 +210,216 @@ function DigitalTwinContent() {
             {/* Sensor 4: Oil Contamination */}
             <div className="bg-white border border-gray-200 p-4 rounded-sharp shadow-subtle flex items-center justify-between">
               <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-gray-400">Oil Quality</span>
+                <span className="text-20 font-bold text-gray-900 mt-1 font-mono">{currentOil.toFixed(0)} ppm</span>
+                <span className="text-[10px] text-gray-500 mt-0.5">Fe elements index</span>
+              </div>
+              <Heart className={`h-8 w-8 ${currentOil > 40 ? "text-[#DC2626]" : "text-gray-400"}`} />
+            </div>
+
+          </div>
+
+          {/* Telemetry charts Area */}
+          <div className="bg-white border border-gray-200 rounded-sharp-lg p-5 shadow-subtle h-[280px] shrink-0 flex flex-col">
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider block mb-3">Live SCADA Sensor Correlated Feed</span>
+            <div className="flex-1 min-h-0 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={combinedTelemetryData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                  <XAxis dataKey="time" stroke="#9CA3AF" fontSize={11} />
+                  <YAxis yAxisId="left" stroke="#9CA3AF" fontSize={11} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" fontSize={11} />
+                  <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  <Line yAxisId="left" type="monotone" dataKey="Temp" stroke="#DC2626" strokeWidth={1.5} dot={false} name="Temperature (°C)" />
+                  <Line yAxisId="left" type="monotone" dataKey="Vibration" stroke="#F59E0B" strokeWidth={1.5} dot={false} name="Vibration (mm/s)" />
+                  <Line yAxisId="right" type="monotone" dataKey="Pressure" stroke="#2563EB" strokeWidth={1.5} dot={false} name="Pressure (MPa)" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Predicted Degradation Curve Panel */}
+          <div className="bg-white border border-gray-200 rounded-sharp-lg p-5 shadow-subtle h-[280px] shrink-0 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Remaining Useful Life (RUL) Degradation Curve</span>
+              <span className="text-[10px] text-gray-500 font-mono">Algorithm: Particle Filtering Wear Estimator</span>
+            </div>
+            <div className="flex-1 min-h-0 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={activeAsset.degradationCurve}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                  <XAxis dataKey="hours" stroke="#9CA3AF" fontSize={11} name="Hours" label={{ value: 'Operational Hours', position: 'insideBottomRight', offset: -5, fontSize: 10 }} />
+                  <YAxis domain={[0, 100]} stroke="#9CA3AF" fontSize={11} label={{ value: 'Health Score %', angle: -90, position: 'insideLeft', fontSize: 10 }} />
+                  <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                  <Legend wrapperStyle={{ fontSize: "11px" }} />
+                  <Line type="monotone" dataKey="normal" stroke="#9CA3AF" strokeDasharray="5 5" strokeWidth={1.5} dot={false} name="Nominal Degradation" />
+                  <Line type="monotone" dataKey="predicted" stroke="#DC2626" strokeWidth={2.5} dot={false} name="Predicted Wear-out Curve" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Side: Operational Scorecard Profile */}
+        <div className="w-96 bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden shrink-0">
+          {/* Inspector Header */}
+          <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-xs text-gray-900 uppercase tracking-wider">Asset Operational Profile</span>
+            </div>
+            <span className="text-[10px] font-mono text-gray-400">TAG: {activeAsset.tag}</span>
+          </div>
+
+          {/* Inspector Body */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+            <div>
+              <h2 className="text-16 font-bold text-gray-900">{activeAsset.name}</h2>
+              <span className="text-gray-400 block mt-0.5">{activeAsset.manufacturer} | {activeAsset.model}</span>
+            </div>
+
+            {/* Status Badges Row */}
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div className={`p-2 border rounded-sharp font-semibold ${getStatusColor(activeAsset.status)}`}>
+                <span className="text-[9px] text-gray-500 uppercase tracking-wider block font-medium">Status</span>
+                <span className="text-xs">{activeAsset.status}</span>
+              </div>
+              <div className={`p-2 border rounded-sharp font-semibold ${getSeverityColor(activeAsset.severityClass)}`}>
+                <span className="text-[9px] text-gray-500 uppercase tracking-wider block font-medium">Severity Class</span>
+                <span className="text-xs">{activeAsset.severityClass}</span>
+              </div>
+            </div>
+
+            {/* Health & Failure RUL scores */}
+            <div className="border border-gray-200 rounded-sharp p-3 bg-gray-50 space-y-2.5">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-500">Asset Health Score:</span>
+                <span className={`text-16 font-bold ${activeAsset.healthScore < 70 ? "text-[#DC2626]" : "text-[#16A34A]"}`}>
+                  {activeAsset.healthScore} / 100
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full ${activeAsset.healthScore < 70 ? "bg-[#DC2626]" : "bg-[#16A34A]"}`} 
+                  style={{ width: `${activeAsset.healthScore}%` }}
+                />
+              </div>
+
+              <div className="h-px bg-gray-200 my-2" />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-[10px]">Failure Probability</span>
+                  <span className={`text-14 font-bold ${activeAsset.failureProbability > 0.5 ? "text-[#DC2626]" : "text-gray-900"}`}>
+                    {(activeAsset.failureProbability * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-[10px]">Remaining Useful Life</span>
+                  <span className="text-14 font-bold text-gray-900 flex items-center gap-1">
+                    <Clock className="h-4 w-4 text-gray-400" />
+                    {activeAsset.remainingUsefulLife} hrs
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Diagnostics Prescriptions */}
+            <div className="border border-blue-200 rounded-sharp p-3.5 bg-blue-50/50 flex flex-col gap-2">
+              <div className="flex items-center gap-1.5 font-bold text-[#2563EB]">
+                <Cpu className="h-4 w-4" />
+                <span>AI Prescriptive Diagnostics</span>
+              </div>
+              <p className="text-gray-700 leading-relaxed font-medium">
+                {activeAsset.aiRecommendation}
+              </p>
+            </div>
+
+            {/* Operational Parameters list */}
+            <div className="space-y-2">
+              <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Operational Metadata</span>
+              <div className="space-y-1.5 text-[11px] bg-gray-50 p-2.5 rounded border border-gray-150">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Location:</span>
+                  <span className="text-gray-800 font-semibold">{activeAsset.location}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Install Date:</span>
+                  <span className="text-gray-800 font-semibold">{activeAsset.installDate}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Total Runtime:</span>
+                  <span className="text-gray-800 font-semibold">{activeAsset.runtimeHours.toLocaleString()} hrs</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Last Maintenance:</span>
+                  <span className="text-gray-800 font-semibold">{activeAsset.lastMaintenance}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Next Scheduled:</span>
+                  <span className="text-gray-800 font-semibold">{activeAsset.nextMaintenance}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Est. Repair Cost:</span>
+                  <span className="text-gray-800 font-semibold">${activeAsset.maintenanceCostEstimate.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Related Documents links */}
+            <div className="space-y-2">
+              <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Related Reference Manuals</span>
+              <div className="space-y-1.5">
+                {activeAsset.relatedDocuments.map((docId) => (
+                  <Link 
+                    key={docId}
+                    href={`/documents?id=${docId}`}
+                    className="p-2 border border-gray-200 rounded bg-white hover:bg-gray-50 transition-all-custom cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="h-4 w-4 text-[#2563EB] shrink-0" />
+                      <span className="font-medium text-gray-900 truncate">{docId} Manual Reference</span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+                  </Link>
+                ))}
+                {activeAsset.relatedDocuments.length === 0 && (
+                  <span className="text-gray-400 italic">No reference documentation linked.</span>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Inspector Action Buttons */}
+          <div className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+            <Link
+              href="/copilot"
+              className="flex-1 flex items-center justify-center bg-[#2563EB] hover:bg-blue-700 text-white rounded py-1.5 text-xs font-semibold shadow-sm focus:outline-none"
+            >
+              <span>Query Copilot</span>
+            </Link>
+            {activeAsset.openIncidentsCount > 0 && (
+              <Link
+                href={`/maintenance?tab=rca&assetId=${activeAsset.id}`}
+                className="flex-1 flex items-center justify-center bg-[#DC2626] hover:bg-red-700 text-white rounded py-1.5 text-xs font-semibold shadow-sm focus:outline-none"
+              >
+                <span>Inspect RCA</span>
+              </Link>
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+export default function DigitalTwinPage() {
+  return (
+    <React.Suspense fallback={<div className="text-xs text-gray-500 p-6 animate-pulse">Loading Digital Twin...</div>}>
+      <DigitalTwinContent />
+    </React.Suspense>
+  );
+}
