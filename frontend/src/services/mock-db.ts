@@ -454,3 +454,143 @@ export const mockAIAgents: AIAgent[] = [
     id: "agent-compliance",
     name: "Compliance Agent",
     status: "Idle",
+    currentTask: "None",
+    queueLength: 0,
+    tokensProcessed: 680000,
+    runtimeMs: 290,
+    successRate: 99.1,
+    dependencies: ["agent-planner", "agent-retrieval"],
+    processingTimeline: [290, 310, 280, 300, 320, 275, 290, 285],
+    previousExecutions: [
+      { taskId: "task-1025", runtimeMs: 285, status: "Success", timestamp: "2026-07-10T13:40:04Z", taskDescription: "Assess compliance score against Factory Act Sec 21 safety interlocks." }
+    ],
+    thinkingLog: [
+      "COMPLIANCE: Checking regulation requirements: OISD-STD-117 and Factory Act Section 21.",
+      "COMPLIANCE: Verifying status of Hot Work Permit HWP-2026-089 linked to Sector 1.",
+      "COMPLIANCE: WARNING: Permit HWP-2026-089 has expired. Active maintenance on P-101A requires valid permit.",
+      "COMPLIANCE: Flagging audit vulnerability. Corrective action item generated: 'Renew hot work permit for Sector 1 feedwater area immediately'.",
+      "COMPLIANCE: Audit readiness score updated from 94% to 88% due to active unpermitted maintenance warning."
+    ]
+  },
+  {
+    id: "agent-rca",
+    name: "Root Cause Agent",
+    status: "Idle",
+    currentTask: "None",
+    queueLength: 0,
+    tokensProcessed: 1420000,
+    runtimeMs: 620,
+    successRate: 96.5,
+    dependencies: ["agent-maintenance", "agent-kg"],
+    processingTimeline: [650, 680, 610, 630, 640, 615, 620, 618],
+    previousExecutions: [
+      { taskId: "task-1026", runtimeMs: 618, status: "Success", timestamp: "2026-07-10T13:40:05Z", taskDescription: "Generate Fishbone diagram structure for C-302 compressor valve failure." }
+    ],
+    thinkingLog: [
+      "RCA_AGENT: Triggering investigation tree for incident INC-401 (P-101A degradation).",
+      "RCA_AGENT: Compiling historical failure events. Match found: Incident INC-204 (Impeller wear, Oct 2024). Similarity = 82%.",
+      "RCA_AGENT: Mapping fishbone nodes. Category 'Machine': impeller degradation, clogged suction strainer. Category 'Method': insufficient suction pressure head. Category 'Man': overdue filter cleaning.",
+      "RCA_AGENT: Constructing Fault Tree. Top event: 'Boiler Feedwater Loss'. Gate AND: P-101A fail AND P-101B fail.",
+      "RCA_AGENT: Generating primary contributing factors and isolation instructions."
+    ]
+  },
+  {
+    id: "agent-synthesizer",
+    name: "Answer Synthesizer",
+    status: "Idle",
+    currentTask: "None",
+    queueLength: 0,
+    tokensProcessed: 2850000,
+    runtimeMs: 380,
+    successRate: 99.8,
+    dependencies: ["agent-retrieval", "agent-maintenance", "agent-compliance", "agent-rca"],
+    processingTimeline: [410, 420, 390, 400, 380, 375, 380, 378],
+    previousExecutions: [
+      { taskId: "task-1027", runtimeMs: 378, status: "Success", timestamp: "2026-07-10T13:40:06Z", taskDescription: "Compile synthesised output with citations, confidence, and actions." }
+    ],
+    thinkingLog: [
+      "SYNTHESIZER: Compiling all agent outputs. RAG, RCA, Compliance, and Telemetry predictions loaded.",
+      "SYNTHESIZER: Constructing structured response: Executive Summary, Detailed Analysis, Recommended Actions, Compliance Impact.",
+      "SYNTHESIZER: Injecting citations: [Vendor Manual p.42](doc-1#L123), [Shutdown SOP Sec 3.2](doc-2#L45).",
+      "SYNTHESIZER: Calculating final response confidence. Coverage score = 95%, Data consensus = 92%. Weighted Confidence = 93%.",
+      "SYNTHESIZER: Formatting Markdown block. Transmitting final response payload."
+    ]
+  }
+];
+
+export const mockGraph: { nodes: GraphNode[]; edges: GraphEdge[] } = {
+  nodes: [
+    { id: "P-101A", label: "Boiler Feed Pump P-101A", type: "Equipment", properties: { status: "Running", health: 68, location: "Sector 1 - Boiler Feed Area" } },
+    { id: "P-101B", label: "Boiler Feed Pump P-101B", type: "Equipment", properties: { status: "Idle", health: 98, location: "Sector 1 - Boiler Feed Area" } },
+    { id: "C-302", label: "Gas Compressor C-302", type: "Equipment", properties: { status: "Fault", health: 45, location: "Sector 3 - Gas Compression Station" } },
+    { id: "FCV-204", label: "Control Valve FCV-204", type: "Valve", properties: { status: "Running", health: 92, location: "Sector 1 - Boiler Feed Area" } },
+    { id: "GT-401", label: "Gas Turbine GT-401", type: "Turbine", properties: { status: "Running", health: 84, location: "Sector 2 - Power Generation" } },
+    { id: "Elena", label: "Elena Rostova", type: "Engineer", properties: { role: "Maintenance Engineer", engineerName: "Elena Rostova" } },
+    { id: "Marcus", label: "Marcus Vance", type: "Engineer", properties: { role: "Plant Operator", engineerName: "Marcus Vance" } },
+    { id: "Siddharth", label: "Siddharth Mehta", type: "Engineer", properties: { role: "Compliance Officer", engineerName: "Siddharth Mehta" } },
+    { id: "doc-1", label: "Pump Vendor Manual", type: "Document", properties: { date: "2026-03-12", author: "Elena Rostova" } },
+    { id: "doc-2", label: "Emergency Shutdown SOP", type: "Document", properties: { date: "2026-05-20", author: "David Chen" } },
+    { id: "doc-3", label: "Compressor Maintenance Log", type: "Document", properties: { date: "2026-07-01", author: "Marcus Vance" } },
+    { id: "doc-4", label: "Boiler House P&ID", type: "Document", properties: { date: "2026-06-18", author: "Elena Rostova" } },
+    { id: "INC-401", label: "Incident INC-401: P-101A Vibration", type: "Incident", properties: { severity: "High", date: "2026-07-10" } },
+    { id: "INC-402", label: "Incident INC-402: C-302 Shutdown", type: "Incident", properties: { severity: "Critical", date: "2026-07-10" } },
+    { id: "HWP-089", label: "Hot Work Permit HWP-2026-089", type: "Permit", properties: { status: "Expired", date: "2026-07-09" } },
+    { id: "Plant-TX", label: "Texas Plant Alpha", type: "Plant", properties: { location: "Houston, TX", complianceScore: 88 } },
+    { id: "Risk-Cavitation", label: "Impeller Cavitation Risk", type: "Risk", properties: { description: "High risk in feed water lines during high suction temps", severity: "High" } }
+  ],
+  edges: [
+    { id: "e1", source: "P-101A", target: "Plant-TX", type: "Located At" },
+    { id: "e2", source: "P-101B", target: "Plant-TX", type: "Located At" },
+    { id: "e3", source: "C-302", target: "Plant-TX", type: "Located At" },
+    { id: "e4", source: "FCV-204", target: "Plant-TX", type: "Located At" },
+    { id: "e5", source: "GT-401", target: "Plant-TX", type: "Located At" },
+    { id: "e6", source: "P-101A", target: "Elena", type: "Maintained By" },
+    { id: "e7", source: "C-302", target: "Elena", type: "Maintained By" },
+    { id: "e8", source: "P-101A", target: "Marcus", type: "Maintained By" },
+    { id: "e9", source: "C-302", target: "Marcus", type: "Maintained By" },
+    { id: "e10", source: "Plant-TX", target: "Siddharth", type: "Maintained By" },
+    { id: "e11", source: "P-101A", target: "doc-1", type: "Connected To" },
+    { id: "e12", source: "P-101A", target: "doc-2", type: "Connected To" },
+    { id: "e13", source: "C-302", target: "doc-3", type: "Connected To" },
+    { id: "e14", source: "FCV-204", target: "doc-4", type: "Connected To" },
+    { id: "e15", source: "P-101A", target: "INC-401", type: "Related Incident" },
+    { id: "e16", source: "C-302", target: "INC-402", type: "Related Incident" },
+    { id: "e17", source: "P-101A", target: "HWP-089", type: "Requires Permit" },
+    { id: "e18", source: "P-101A", target: "Risk-Cavitation", type: "Affected By" },
+    { id: "e19", source: "P-101A", target: "FCV-204", type: "Connected To" },
+    { id: "e20", source: "doc-2", target: "Plant-TX", type: "Located At" }
+  ]
+};
+
+export const mockIncidents: RootCauseAnalysis[] = [
+  {
+    id: "RCA-401",
+    incidentId: "INC-401",
+    title: "P-101A High Vibration Anomaly",
+    assetId: "P-101A",
+    severity: "High",
+    date: "2026-07-10",
+    status: "Under Investigation",
+    timeline: [
+      { time: "09:30", event: "Standard operation. Vibration at nominal 2.1 mm/s. Flow rate 120 m³/h.", type: "system" },
+      { time: "10:15", event: "First signal deviation. De-aerator feed valve FCV-204 adjusts position. Suction pressure drops slightly to 0.12 MPa.", type: "system" },
+      { time: "11:20", event: "NPSH margins hit critical floor. Radial vibration jumps from 2.2 to 4.8 mm/s. Acoustic noise increase reported by shift operator.", type: "anomaly" },
+      { time: "12:05", event: "Active vibration alarm triggered. Level reached 6.1 mm/s. System controller issues alert.", type: "anomaly" },
+      { time: "13:00", event: "Vibration peaks at 7.2 mm/s. Bearing temperature rise logged (86.4°C). Operations manager notified. RUL projection drops to 42 hrs.", type: "anomaly" }
+    ],
+    fishbone: [
+      { category: "Machine", causes: ["Impeller vane erosion / pitting", "Wear ring tolerance widening", "Coupling misalignment"] },
+      { category: "Material", causes: ["High temperature fluid density change", "Suction fluid vapor pocketing"] },
+      { category: "Method", causes: ["Low suction head operation", "Bypassing strainer pressure differential sensors"] },
+      { category: "Measurement", causes: ["Vibration probe out of calibration", "RTD bearing sensor thermal lag"] },
+      { category: "Environment", causes: ["High ambient temperature (Sector 1 Boiler deck)"] }
+    ],
+    faultTree: {
+      "F-ROOT": { id: "F-ROOT", label: "Boiler Feedwater System Impairment", type: "ROOT_CAUSE", children: ["G-1"] },
+      "G-1": { id: "G-1", label: "Pump P-101A Fails During Duty Cycle", type: "AND", children: ["E-Vibration", "E-PermitExpired"] },
+      "E-Vibration": { id: "E-Vibration", label: "Vibration Exceeds Trip Threshold (7.2 mm/s)", type: "OR", probability: 0.88, children: ["E-Cavitation", "E-MechanicalWear"] },
+      "E-Cavitation": { id: "E-Cavitation", label: "Vapor Cavitation in Impeller Chamber", type: "EVENT", probability: 0.72 },
+      "E-MechanicalWear": { id: "E-MechanicalWear", label: "Bearing Cage Disintegration", type: "EVENT", probability: 0.16 },
+      "E-PermitExpired": { id: "E-PermitExpired", label: "Hot Work Permit Expired (No Lockout Tagout Permit)", type: "EVENT", probability: 1.0 }
+    },
+    contributingFactors: [
