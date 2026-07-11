@@ -594,3 +594,109 @@ export const mockIncidents: RootCauseAnalysis[] = [
       "E-PermitExpired": { id: "E-PermitExpired", label: "Hot Work Permit Expired (No Lockout Tagout Permit)", type: "EVENT", probability: 1.0 }
     },
     contributingFactors: [
+      "De-aerator pressure drop resulting in inadequate Net Positive Suction Head Available (NPSHa).",
+      "Suction strainer blockage causing suction cavitation.",
+      "Expired hot work permit #HWP-2026-089 preventing maintenance engineers from executing immediate offline cleaning."
+    ],
+    historicalIncidents: [
+      { id: "INC-204", title: "Sector 1 Pump Cavitation & Impeller Repair", date: "2024-10-15", similarity: 0.82, resolution: "Replaced primary impeller. Unclogged debris from pump suction basket and revised PLC low-suction pressure interlock trip point." },
+      { id: "INC-110", title: "FCV-204 Valve Hunting & Surge Pressure", date: "2023-05-04", similarity: 0.54, resolution: "Calibrated pneumatic valve actuator and tuned PID parameters." }
+    ],
+    aiExplanation: "Vibration spectrum analysis indicates dominant frequencies at 1x RPM and vane pass frequencies (8x RPM). This is highly indicative of hydraulic instability in the impeller chambers, consistent with cavitation. The incident is compounded by the inability to take the equipment offline due to active work permit locks and safety override holds.",
+    preventiveActions: [
+      "Switch boiler feed duties from P-101A to P-101B.",
+      "Flush suction strainer basket to remove mechanical scale and corrosion debris.",
+      "Implement automatic dynamic NPSHa calculation in PLC code, triggering alarms before vapor pressure threshold is reached."
+    ]
+  },
+  {
+    id: "RCA-402",
+    incidentId: "INC-402",
+    title: "C-302 Gas Compressor Automatic Trip",
+    assetId: "C-302",
+    severity: "Critical",
+    date: "2026-07-10",
+    status: "Resolved",
+    timeline: [
+      { time: "11:00", event: "Compressor operating at 680 RPM. Discharge pressure stable at 5.4 MPa.", type: "system" },
+      { time: "11:10", event: "Discharge valve temp on Cylinder 2 rises rapidly from 92°C to 118°C.", type: "anomaly" },
+      { time: "11:13", event: "Temperature crosses safety interlock threshold (135°C), reaching 142°C. ESD (Emergency Shutdown) system triggers trip automatically.", type: "anomaly" },
+      { time: "11:14", event: "Main motor trips. Gas blowdown valves open. Pressure falls to 0.5 MPa.", type: "action" }
+    ],
+    fishbone: [
+      { category: "Machine", causes: ["Discharge valve plate fracture", "Spring fatigue", "Piston ring leakage"] },
+      { category: "Method", causes: ["Inadequate cooling water flow to cylinder jacket"] }
+    ],
+    faultTree: {
+      "F-ROOT": { id: "F-ROOT", label: "C-302 Trip Event", type: "ROOT_CAUSE", children: ["G-1"] },
+      "G-1": { id: "G-1", label: "Stage 2 Temp Trip Triggered", type: "OR", children: ["E-ValveLeak", "E-CoolingFail"] },
+      "E-ValveLeak": { id: "E-ValveLeak", label: "Discharge Valve Plate Fracture", type: "EVENT", probability: 0.95 },
+      "E-CoolingFail": { id: "E-CoolingFail", label: "Water Jacket Scale Fouling", type: "EVENT", probability: 0.05 }
+    },
+    contributingFactors: [
+      "Fatigue fracture of Stage 2 discharge valve plate leading to re-compression of hot gas.",
+      "Marginal bypass valve seal wear resulting in backflow leak."
+    ],
+    historicalIncidents: [
+      { id: "INC-098", title: "C-302 Valve Plate Crack", date: "2023-01-20", similarity: 0.95, resolution: "Valve assembly replaced." }
+    ],
+    aiExplanation: "Cylinder discharge temperature rose rapidly while suction pressure remained stable. This indicates gas was slipping back into the cylinder during suction strokes (re-compression), causing heat accumulation. Post-incident physical tear-down confirmed a cracked valve plate in Stage 2 Cylinder B.",
+    preventiveActions: [
+      "Replace Stage 2 valve assembly with premium PEEK valve plates.",
+      "Establish predictive thermal envelope tracking in SCADA to detect minor gas slippage before thermal run-away."
+    ]
+  }
+];
+
+export const mockCompliance: ComplianceScoreCard = {
+  overallScore: 88,
+  standards: [
+    { name: "Factory Act 1948 (Sec 21)", score: 92, status: "Compliant" },
+    { name: "OISD Standard 117 (Fire Protection)", score: 85, status: "Warning" },
+    { name: "PESO Rules (Explosives Handling)", score: 75, status: "Non-Compliant" },
+    { name: "ISO 14001 (Environmental Mgmt)", score: 98, status: "Compliant" }
+  ],
+  missingPermits: [
+    { id: "p-miss-1", name: "PESO Static Pressure Vessel License Renewal", requiredFor: "LNG Fuel Storage Tank V-501", status: "Expired", dueDate: "2026-07-05" },
+    { id: "p-miss-2", name: "Pollution Under Control (PUC) Air Discharge Permit", requiredFor: "Boiler Stack Exhaust B1", status: "Overdue", dueDate: "2026-07-08" },
+    { id: "p-miss-3", name: "Hot Work Permit Override Authorization", requiredFor: "P-101A Suction Manifold Welds", status: "Missing", dueDate: "2026-07-10" }
+  ],
+  correctiveActions: [
+    { id: "ca-1", action: "Calibrate level transmitter LT-102 emergency low-cutoff switch", regulation: "Factory Act Sec 21", priority: "High", assignee: "Elena Rostova", deadline: "2026-07-12", status: "In Progress" },
+    { id: "ca-2", action: "Perform hydrostatic test on deluge valve manifold sector 1", regulation: "OISD-STD-117", priority: "High", assignee: "Thomas Mueller", deadline: "2026-07-14", status: "Open" },
+    { id: "ca-3", action: "Submit pressure test certificate to PESO inspector", regulation: "PESO Rules", priority: "High", assignee: "Siddharth Mehta", deadline: "2026-07-15", status: "Open" },
+    { id: "ca-4", action: "Conduct annual safety audit training for operators", regulation: "ISO 14001", priority: "Medium", assignee: "David Chen", deadline: "2026-08-01", status: "Completed" }
+  ],
+  riskHeatmap: [
+    { likelihood: 5, severity: 5, count: 0, incidents: [] },
+    { likelihood: 4, severity: 5, count: 1, incidents: ["INC-402 (C-302 Trip)"] },
+    { likelihood: 4, severity: 4, count: 1, incidents: ["INC-401 (P-101A Vibration)"] },
+    { likelihood: 3, severity: 4, count: 2, incidents: ["Expired LNG Tank Licence", "Water Discharge Limits Exceedance"] },
+    { likelihood: 2, severity: 2, count: 4, incidents: ["Instrument Calibration Overdue", "Minor Steam Leaks"] },
+    { likelihood: 1, severity: 1, count: 10, incidents: ["Operator Log Misses", "Safety Poster Damage"] }
+  ]
+};
+
+export const mockAIModelConfig: AIModelConfig = {
+  currentModel: "Gemini 1.5 Pro (Enterprise)",
+  embeddingModel: "Text-Embedding-004 (Google)",
+  temperature: 0.15,
+  contextWindow: "1,048,576 Tokens",
+  promptVersion: "v4.1.8-production",
+  agentVersion: "LangGraph-Orchestration-v2.1",
+  latencyMs: 340,
+  costPerMillionTokens: 2.50,
+  tokenUsage: {
+    input: 14250800,
+    output: 4890300
+  }
+};
+
+export const mockIntegrations: SystemIntegration[] = [
+  { id: "int-1", name: "SAP S/4HANA PM", type: "ERP", connected: true, status: "Active", syncDate: "2026-07-10T14:00:00Z", icon: "Database", recordsSynced: 124500 },
+  { id: "int-2", name: "IBM Maximo Assets", type: "CMMS", connected: true, status: "Active", syncDate: "2026-07-10T14:05:00Z", icon: "Layers", recordsSynced: 84300 },
+  { id: "int-3", name: "Siemens Opcenter MES", type: "SCADA", connected: true, status: "Syncing", syncDate: "2026-07-10T14:12:00Z", icon: "Activity", recordsSynced: 945200 },
+  { id: "int-4", name: "Azure Active Directory", type: "IAM", connected: true, status: "Active", syncDate: "2026-07-10T08:00:00Z", icon: "Users", recordsSynced: 1420 },
+  { id: "int-5", name: "AWS S3 Archive", type: "Cloud", connected: true, status: "Active", syncDate: "2026-07-10T12:00:00Z", icon: "HardDrive", recordsSynced: 450 },
+  { id: "int-6", name: "Microsoft Teams Bot", type: "Collab", connected: false, status: "Inactive", syncDate: "Never", icon: "Users", recordsSynced: 0 }
+];
