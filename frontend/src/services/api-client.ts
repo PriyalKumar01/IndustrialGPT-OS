@@ -385,3 +385,100 @@ export const apiService = {
 
     // Node 2: Retrieval Agent
     onStepUpdate({ agentId: "agent-retrieval", agentName: "Retrieval Agent (RAG)", status: "Thinking", thinking: "Searching vector space in collection 'plant_manuals' for query-related chunks...", completed: false, activeNode: "Retriever" });
+    await wait(1000);
+    onStepUpdate({ agentId: "agent-retrieval", agentName: "Retrieval Agent (RAG)", status: "Idle", thinking: "Retrieved 3 document chunks from Feed_Water_Pump_P101A_Vendor_Manual.pdf (similarity: 0.94)", completed: true, activeNode: "Retriever" });
+
+    // Node 3: Knowledge Graph Agent
+    onStepUpdate({ agentId: "agent-kg", agentName: "Knowledge Graph Agent", status: "Thinking", thinking: "Executing Cypher queries on Neo4j for equipment relations and permits...", completed: false, activeNode: "Knowledge Graph" });
+    await wait(800);
+    onStepUpdate({ agentId: "agent-kg", agentName: "Knowledge Graph Agent", status: "Idle", thinking: "Fetched neighborhood paths for P-101A. Relationships: Requires Permit (Expired), Affected By (INC-401).", completed: true, activeNode: "Knowledge Graph" });
+
+    // Node 4: Maintenance Agent
+    onStepUpdate({ agentId: "agent-maintenance", agentName: "Maintenance Agent", status: "Thinking", thinking: "Running sensor degradation model with radial vibration telemetry data...", completed: false, activeNode: "Maintenance" });
+    await wait(900);
+    onStepUpdate({ agentId: "agent-maintenance", agentName: "Maintenance Agent", status: "Idle", thinking: "Estimated RUL: 42 hours. Probability of failure: 88%. Cavitation signature detected.", completed: true, activeNode: "Maintenance" });
+
+    // Node 5: Compliance Agent
+    onStepUpdate({ agentId: "agent-compliance", agentName: "Compliance Agent", status: "Thinking", thinking: "Validating safety rules under Factory Act Section 21 and expired Sector 1 permits...", completed: false, activeNode: "Compliance" });
+    await wait(800);
+    onStepUpdate({ agentId: "agent-compliance", agentName: "Compliance Agent", status: "Idle", thinking: "Permit HWP-2026-089 has expired. Active maintenance violates OSHA 1910 lock-out audit standards.", completed: true, activeNode: "Compliance" });
+
+    // Node 6: Root Cause Agent
+    onStepUpdate({ agentId: "agent-rca", agentName: "Root Cause Agent", status: "Thinking", thinking: "Synthesizing Ishikawa fishbone diagram and fault tree logic...", completed: false, activeNode: "RCA" });
+    await wait(1000);
+    onStepUpdate({ agentId: "agent-rca", agentName: "Root Cause Agent", status: "Idle", thinking: "Calculated primary cause: vapor pressure drop at FCV-204 downstream causing cavitation in P-101A.", completed: true, activeNode: "RCA" });
+
+    // Node 7: Synthesizer
+    onStepUpdate({ agentId: "agent-synthesizer", agentName: "Answer Synthesizer", status: "Thinking", thinking: "Assembling comprehensive response template and linking citations...", completed: false, activeNode: "Answer Synthesizer" });
+    await wait(700);
+    onStepUpdate({ agentId: "agent-synthesizer", agentName: "Answer Synthesizer", status: "Idle", thinking: "Markdown document built. Final token billing generated.", completed: true, activeNode: "Evidence Generator" });
+
+    // Final outputs
+    const isP101 = query.toLowerCase().includes("p-101") || query.toLowerCase().includes("pump");
+    const isC302 = query.toLowerCase().includes("c-302") || query.toLowerCase().includes("compressor");
+
+    if (isC302) {
+      return {
+        answer: `### Executive Summary
+Reciprocating Compressor **C-302** is currently in **Fault** status, triggered by an automatic thermal safety shutdown (ESD) on 2026-07-10 at 11:13. The discharge valve temperature on Stage 2 Cylinder B exceeded safety limits, peaking at **142°C**.
+
+### Detailed Analysis
+1. **Thermal Deviation**: Real-time telemetry shows a sharp thermal run-away starting at 11:10, rising from 92°C to 118°C in 3 minutes, before crossing the 135°C interlock limit.
+2. **Pressure Loss**: SCADA logs recorded a corresponding discharge pressure drop down to **3.2 MPa** (nominal: 5.4 MPa), suggesting gas backflow.
+3. **Primary Diagnosis**: Cracked valve plate in Stage 2 discharge valve assembly. This caused hot discharge gas to slip back into the cylinder during suction strokes (re-compression), resulting in rapid heat buildup.
+
+### Recommended Next Actions
+- **Isolate & Purge**: Depressurize C-302 block and purge casing with Nitrogen prior to flange dismantling. (Ref: [C-302 Maintenance SOP p.14](doc-3#L140))
+- **Replace Assembly**: Replace Stage 2 discharge valve assembly on Cylinder B. Install upgraded PEEK plates.
+- **Safety Interlock**: Re-test pressure safety valves (PSV) before motor restart.`,
+        citations: [
+          { text: "C-302 Maintenance Log - Valve replacement procedures", source: "Reciprocating_Compressor_C302_Maintenance_Log.xlsx", link: "doc-3#L140" }
+        ],
+        confidence: 0.95,
+        relatedAssets: ["C-302"],
+        relatedIncidents: ["RCA-402"],
+        kgPath: {
+          nodes: ["C-302", "Elena", "doc-3", "INC-402"],
+          edges: ["e3", "e7", "e9", "e13", "e16"]
+        },
+        alternativeActions: [
+          "Perform complete cylinder jacket descaling to rule out thermal cooling restriction.",
+          "Check compressor crankshaft radial alignment parameters."
+        ],
+        complianceImpact: "ISO 9001 quality audit requires documentation of post-maintenance hydrostatic pressure test prior to unit commission."
+      };
+    }
+
+    // Default or P-101A response
+    return {
+      answer: `### Executive Summary
+Feed Water Pump **P-101A** is displaying critical mechanical degradation indicators. Vibration on Radial DE has reached **7.2 mm/s** (Limit: 4.5 mm/s), and NDE Bearing Temperature is high at **86.4°C**. Remaining Useful Life (RUL) is estimated at **42 hours** with an 88% probability of imminent failure.
+
+### Detailed Analysis
+1. **Hydraulic Instability**: Low Net Positive Suction Head Available (NPSHa) is causing cavitation. This is evidenced by pressure fluctuations at FCV-204 and acoustic cavitation pops.
+2. **Mechanical Fatigue**: Secondary bearing damage is occurring due to prolonged operation under cavitation stress.
+3. **Administrative Hold**: Immediate offline cleaning is blocked because Hot Work Permit **HWP-2026-089** for Sector 1 utility block has expired.
+
+### Recommended Next Actions
+1. **Duty Switch**: Switch primary duty flow manually to auxiliary pump **P-101B** via the control console interlock bypass. (Ref: [Emergency Shutdown SOP Sec 3.2](doc-2#L45))
+2. **Strainer Maintenance**: Inspect and clean the P-101A suction strainer basket to restore suction pressure. (Ref: [P-101A Vendor Manual Sec 8.4](doc-1#L123))
+3. **Permit Renewal**: Submit emergency renewal for hot work permit HWP-2026-089. (Ref: [PESO Standard Checklist Sec 4](doc-4#L8))`,
+      citations: [
+        { text: "P-101A Vendor Manual - Section 8: Lubrication & Clearances", source: "Feed_Water_Pump_P101A_Vendor_Manual.pdf", link: "doc-1#L123" },
+        { text: "Emergency Shutdown SOP - Section 3: Feedwater Failures", source: "SOP_Boiler_Feed_Water_Emergency_Shutdown.pdf", link: "doc-2#L45" }
+      ],
+      confidence: 0.93,
+      relatedAssets: ["P-101A", "FCV-204"],
+      relatedIncidents: ["RCA-401"],
+      kgPath: {
+        nodes: ["P-101A", "FCV-204", "INC-401", "HWP-089", "Risk-Cavitation"],
+        edges: ["e15", "e17", "e18", "e19"]
+      },
+      alternativeActions: [
+        "Reduce current turbine generator output by 10% to throttle steam demand and lower pump flow rate, relieving cavitation pressure.",
+        "Grease DE/NDE bearings immediately to delay thermal seize-up during the duty switchover window."
+      ],
+      complianceImpact: "Operations under current alert status violates PESO Static Vessel Safety Guidelines. An audit penalty of $12,500/day applies if unpermitted repair is logged."
+    };
+  }
+};
