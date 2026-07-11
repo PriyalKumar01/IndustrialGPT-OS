@@ -239,3 +239,244 @@ function DocumentCenterContent() {
                 <Plus className="h-4 w-4" />
                 <span>Upload Document</span>
               </button>
+            </div>
+          </div>
+
+          {/* Documents Table */}
+          <div className="flex-1 overflow-y-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                <tr>
+                  <th className="p-3 font-semibold text-gray-500 uppercase tracking-wider">Document Name</th>
+                  <th className="p-3 font-semibold text-gray-500 uppercase tracking-wider">Format</th>
+                  <th className="p-3 font-semibold text-gray-500 uppercase tracking-wider">OCR status</th>
+                  <th className="p-3 font-semibold text-gray-500 uppercase tracking-wider">Confidence</th>
+                  <th className="p-3 font-semibold text-gray-500 uppercase tracking-wider">Indexed Assets</th>
+                  <th className="p-3 font-semibold text-gray-500 uppercase tracking-wider">Upload Date</th>
+                  <th className="p-3 font-semibold text-gray-500 text-right uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredDocs.map((doc) => {
+                  const DocIcon = getIcon(doc.type);
+                  const isSelected = selectedDoc?.id === doc.id;
+                  return (
+                    <tr 
+                      key={doc.id}
+                      onClick={() => {
+                        setSelectedDoc(doc);
+                        setCompareVersion(null);
+                      }}
+                      className={`hover:bg-gray-50 cursor-pointer transition-all-custom ${isSelected ? "bg-blue-50/50 border-l-4 border-l-[#2563EB]" : ""}`}
+                    >
+                      <td className="p-3 font-semibold text-gray-900">
+                        <div className="flex items-center gap-2">
+                          <DocIcon className="h-4.5 w-4.5 text-[#2563EB] shrink-0" />
+                          <span className="truncate max-w-[240px]">{doc.name}</span>
+                          <span className="text-[10px] text-gray-400 ml-1">({doc.version})</span>
+                        </div>
+                      </td>
+                      <td className="p-3 text-gray-500 font-mono">{doc.type}</td>
+                      <td className="p-3">
+                        <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-700 border border-green-200">
+                          {doc.ocrStatus}
+                        </span>
+                      </td>
+                      <td className="p-3 font-mono font-semibold text-gray-700">{ (doc.confidence * 100).toFixed(0) }%</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {doc.linkedAssets.length === 0 ? (
+                            <span className="text-gray-400">—</span>
+                          ) : (
+                            doc.linkedAssets.map(asset => (
+                              <span key={asset} className="bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 text-[10px] font-mono text-gray-800">
+                                {asset}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-3 text-gray-500">{new Date(doc.uploadDate).toLocaleDateString()}</td>
+                      <td className="p-3 text-right">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteDoc(doc.id);
+                          }}
+                          title="Purge Document"
+                          className="text-gray-400 hover:text-[#DC2626] p-1 rounded"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Right Side: Metadata Inspector */}
+        {selectedDoc && (
+          <div className="w-96 bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden shrink-0">
+            {/* Inspector Header */}
+            <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-[#2563EB]" />
+                <span className="font-semibold text-xs text-gray-900 uppercase tracking-wider">Metadata Inspector</span>
+              </div>
+              <button 
+                onClick={() => { setSelectedDoc(null); setCompareVersion(null); }} 
+                className="text-gray-400 hover:text-gray-900"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Inspector Contents */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
+              <div>
+                <h3 className="font-bold text-gray-900 truncate">{selectedDoc.name}</h3>
+                <div className="mt-1 text-gray-500 flex items-center justify-between">
+                  <span>Author: {selectedDoc.author}</span>
+                  <span>Ver: {selectedDoc.version}</span>
+                </div>
+              </div>
+
+              {/* Version History Tab */}
+              <div className="border border-gray-200 rounded p-3 bg-gray-50 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-gray-700">Document Version History</span>
+                  <button 
+                    onClick={() => handleVersionBump(selectedDoc.id)}
+                    className="text-[10px] text-[#2563EB] font-bold flex items-center gap-1 hover:underline"
+                  >
+                    <Plus className="h-3 w-3" /> Bump Version
+                  </button>
+                </div>
+                <div className="space-y-2 mt-1 max-h-32 overflow-y-auto">
+                  {selectedDoc.versions.map((ver, idx) => (
+                    <div 
+                      key={ver.version} 
+                      onClick={() => idx > 0 ? setCompareVersion(ver) : setCompareVersion(null)}
+                      className={`p-1.5 border rounded cursor-pointer transition-all-custom flex items-center justify-between ${
+                        compareVersion?.version === ver.version ? "bg-blue-50 border-blue-300" : "bg-white hover:bg-gray-100"
+                      }`}
+                    >
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-gray-900">{ver.version}</span>
+                        <span className="text-[10px] text-gray-500 truncate">{ver.comment}</span>
+                      </div>
+                      <div className="text-right text-[9px] text-gray-400 shrink-0">
+                        <span>{new Date(ver.date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Diff Viewer Trigger */}
+                {compareVersion && (
+                  <div className="mt-2.5 p-2 bg-yellow-50 border border-yellow-200 rounded text-[11px]">
+                    <div className="flex justify-between items-center font-bold text-yellow-800">
+                      <span>Diff Mode: {selectedDoc.version} vs {compareVersion.version}</span>
+                      <button onClick={() => setCompareVersion(null)} className="text-gray-400 hover:text-gray-900">×</button>
+                    </div>
+                    <div className="mt-1 space-y-1 text-gray-700 font-mono">
+                      <div className="text-red-700">- Previous version clearance limits: Max Temp: 165°C</div>
+                      <div className="text-green-700">+ Updated limits: Max Temp: 180°C (Section 2.1)</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Extracted Entity Tags */}
+              <div className="space-y-3.5">
+                <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Extracted Entities (Interactive)</span>
+                
+                {/* Equipment IDs */}
+                <div className="space-y-1">
+                  <span className="text-gray-500 block text-[10px]">Equipment IDs</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {selectedDoc.extractedMetadata.equipmentIds.map(tag => (
+                      <span key={tag} className="px-2 py-0.5 rounded bg-blue-50 text-[#2563EB] border border-blue-200 font-mono cursor-pointer hover:bg-blue-100">
+                        {tag}
+                      </span>
+                    ))}
+                    {selectedDoc.extractedMetadata.equipmentIds.length === 0 && <span className="text-gray-400 italic">None</span>}
+                  </div>
+                </div>
+
+                {/* Regulations */}
+                <div className="space-y-1">
+                  <span className="text-gray-500 block text-[10px]">Compliance Codes & Regulations</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {selectedDoc.extractedMetadata.regulations.map(tag => (
+                      <span key={tag} className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 cursor-pointer hover:bg-purple-100">
+                        {tag}
+                      </span>
+                    ))}
+                    {selectedDoc.extractedMetadata.regulations.length === 0 && <span className="text-gray-400 italic">None</span>}
+                  </div>
+                </div>
+
+                {/* Operating Limits */}
+                <div className="space-y-1">
+                  <span className="text-gray-500 block text-[10px]">Extracted Operating Limits</span>
+                  <div className="space-y-1">
+                    {selectedDoc.extractedMetadata.operatingLimits.map(tag => (
+                      <div key={tag} className="px-2 py-1 rounded bg-yellow-50 text-yellow-800 border border-yellow-200 font-mono">
+                        {tag}
+                      </div>
+                    ))}
+                    {selectedDoc.extractedMetadata.operatingLimits.length === 0 && <span className="text-gray-400 italic">None</span>}
+                  </div>
+                </div>
+
+                {/* Safety Instructions */}
+                <div className="space-y-1">
+                  <span className="text-gray-500 block text-[10px]">Extracted Safety Instructions</span>
+                  <div className="space-y-1.5">
+                    {selectedDoc.extractedMetadata.safetyInstructions.map((tag, idx) => (
+                      <div key={idx} className="flex gap-2 items-start text-gray-700 bg-gray-50 p-2 border border-gray-200 rounded">
+                        <ShieldAlert className="h-4 w-4 text-[#DC2626] shrink-0 mt-0.5" />
+                        <span>{tag}</span>
+                      </div>
+                    ))}
+                    {selectedDoc.extractedMetadata.safetyInstructions.length === 0 && <span className="text-gray-400 italic">None</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Inspector Footer Actions */}
+            <div className="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+              <Link 
+                href="/copilot"
+                className="flex-1 flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded py-1.5 text-xs font-semibold shadow-sm focus:outline-none"
+              >
+                <span>Ask Copilot</span>
+              </Link>
+              <button 
+                onClick={() => alert("Downloading document pdf binary file from secure S3 bucket...")}
+                className="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded p-1.5"
+                title="Download Document"
+              >
+                <Download className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+export default function DocumentCenterPage() {
+  return (
+    <React.Suspense fallback={<div className="text-xs text-gray-500 p-6 animate-pulse">Loading Document Center...</div>}>
+      <DocumentCenterContent />
+    </React.Suspense>
+  );
+}
