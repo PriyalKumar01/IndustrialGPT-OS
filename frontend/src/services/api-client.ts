@@ -94,3 +94,124 @@ export const apiService = {
     return stateDocuments;
   },
 
+  uploadDocument: async (
+    file: { name: string; size: number },
+    type: Document["type"],
+    author: string
+  ): Promise<Document> => {
+    await wait(1200); // OCR parsing takes longer
+    const sizeStr = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+    const dateStr = new Date().toISOString();
+    const newId = `doc-${stateDocuments.length + 1}`;
+    
+    // Auto extract some simulated entities based on name
+    const nameLower = file.name.toLowerCase();
+    const equipmentIds = nameLower.includes("bfp") || nameLower.includes("pump") ? ["P-101A"] : (nameLower.includes("compressor") ? ["C-302"] : []);
+    const locations = nameLower.includes("sector 1") || nameLower.includes("boiler") ? ["Sector 1 - Boiler Feed Area"] : ["Sector 3 - Gas Compression Station"];
+    const regulations = nameLower.includes("oisd") ? ["OISD Standard 117"] : (nameLower.includes("peso") ? ["PESO Rules"] : ["ISO 9001"]);
+
+    const newDoc: Document = {
+      id: newId,
+      name: file.name,
+      type: type,
+      size: sizeStr,
+      uploadDate: dateStr,
+      status: "Vectorized",
+      ocrStatus: "Completed",
+      confidence: 0.92 + Math.random() * 0.07,
+      version: "v1.0",
+      author: author,
+      approvalStatus: "Approved",
+      linkedAssets: equipmentIds,
+      complianceTags: regulations,
+      extractedMetadata: {
+        equipmentIds,
+        plantLocations: locations,
+        engineers: [author],
+        dates: [dateStr.split("T")[0]],
+        regulations,
+        assetTypes: ["Industrial Manual"],
+        failureCodes: ["GEN-01 (Hydraulic Shift)"],
+        operatingLimits: ["Max Design Flow: 150 m3/h"],
+        maintenanceSchedule: ["Visual Check: Daily"],
+        safetyInstructions: ["Verify lock-out tags are applied prior to opening line."]
+      },
+      versions: [
+        {
+          version: "v1.0",
+          date: dateStr,
+          author: author,
+          comment: "Initial upload and OCR ingestion.",
+          status: "Approved",
+          changesCount: 0
+        }
+      ]
+    };
+
+    stateDocuments = [newDoc, ...stateDocuments];
+    saveState();
+
+    // Create a notification
+    const newNotif: SystemNotification = {
+      id: `n-gen-${Date.now()}`,
+      severity: "Information",
+      type: "Document",
+      message: `OCR Processing Complete: ${file.name}`,
+      details: `Parsed successfully. Confidence ${ (newDoc.confidence * 100).toFixed(0) }%. Linked with ${equipmentIds.join(", ") || "no assets"}.`,
+      timestamp: dateStr,
+      isRead: false,
+      actionUrl: "/documents",
+      actionLabel: "View Document"
+    };
+    stateNotifications = [newNotif, ...stateNotifications];
+    saveState();
+
+    return newDoc;
+  },
+
+  deleteDocument: async (id: string): Promise<boolean> => {
+    await wait(DELAY_MS);
+    stateDocuments = stateDocuments.filter(d => d.id !== id);
+    saveState();
+    return true;
+  },
+
+  updateDocumentVersion: async (
+    id: string, 
+    comment: string, 
+    author: string
+  ): Promise<Document> => {
+    await wait(DELAY_MS);
+    stateDocuments = stateDocuments.map(d => {
+      if (d.id === id) {
+        const currentVerNum = parseFloat(d.version.substring(1));
+        const nextVerStr = `v${(currentVerNum + 0.1).toFixed(1)}`;
+        const dateStr = new Date().toISOString();
+        const newVersionRecord = {
+          version: nextVerStr,
+          date: dateStr,
+          author,
+          comment,
+          status: "Approved" as const,
+          changesCount: Math.floor(Math.random() * 8) + 1
+        };
+        return {
+          ...d,
+          version: nextVerStr,
+          uploadDate: dateStr,
+          versions: [newVersionRecord, ...d.versions]
+        };
+      }
+      return d;
+    });
+    saveState();
+    return stateDocuments.find(d => d.id === id)!;
+  },
+
+  // Asset Digital Twin
+  getAssets: async (): Promise<AssetTwin[]> => {
+    await wait(DELAY_MS);
+    return stateAssets;
+  },
+
+  getAssetTwin: async (id: string): Promise<AssetTwin | null> => {
