@@ -384,3 +384,169 @@ Choose one of the suggestions below or enter a custom query to start the LangGra
                         </span>
                       </div>
                       <p className="text-gray-600 text-[11px] leading-relaxed italic border-l-2 border-gray-300 pl-2">
+                        "... {cit.text} ..."
+                      </p>
+                    </div>
+                  ))}
+
+                  {/* Compliance Impact */}
+                  {activeInspectorMsg.complianceImpact && (
+                    <div className="p-3 border border-purple-200 rounded bg-purple-50/50 space-y-1">
+                      <span className="font-bold text-purple-700 uppercase text-[9px] block">Compliance Standard Audit Impact</span>
+                      <p className="text-gray-700 font-medium text-[11px] leading-relaxed">
+                        {activeInspectorMsg.complianceImpact}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 2: Explainability Path */}
+              {activeRightTab === "explain" && (
+                <div className="space-y-4">
+                  <div>
+                    <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Why this answer?</span>
+                    <p className="text-gray-600 leading-relaxed mt-1">
+                      The model verified the mechanical telemetry anomalies on the asset and correlated them with the maintenance logs and piping schematics retrieved by the sub-agents.
+                    </p>
+                  </div>
+
+                  {/* Confidence Breakdown Gauge */}
+                  <div className="p-3 border border-gray-200 rounded bg-gray-50 space-y-2">
+                    <span className="font-bold text-gray-700 block">Confidence Core Metrics</span>
+                    <div className="space-y-1.5 text-[11px]">
+                      <div className="flex justify-between">
+                        <span>Vector Coverage:</span>
+                        <span className="font-mono text-gray-900 font-semibold">95%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Neo4j Graph Consensus:</span>
+                        <span className="font-mono text-gray-900 font-semibold">92%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Historical Consistency:</span>
+                        <span className="font-mono text-gray-900 font-semibold">88%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Alternative Actions */}
+                  {activeInspectorMsg.alternativeActions && (
+                    <div className="space-y-2">
+                      <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Alternative AI Recommendations</span>
+                      <div className="space-y-1.5">
+                        {activeInspectorMsg.alternativeActions.map((act, idx) => (
+                          <div key={idx} className="flex gap-2 items-start text-gray-700 bg-gray-50 p-2 border border-gray-200 rounded leading-normal">
+                            <Compass className="h-4 w-4 text-[#0EA5E9] shrink-0 mt-0.5" />
+                            <span>{act}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab 3: Traversed Path (Sub-graph SVG) */}
+              {activeRightTab === "subgraph" && (
+                <div className="space-y-4">
+                  <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Traversed Neo4j Path</span>
+                  <p className="text-[11px] text-gray-500">Nodes and relationships evaluated during multi-agent Cypher retrieval.</p>
+                  
+                  {/* Small sub-graph schematic */}
+                  <div className="h-40 border border-gray-200 rounded bg-gray-50 flex items-center justify-center relative overflow-hidden">
+                    <svg className="w-full h-full">
+                      {/* Lines */}
+                      <line x1="50" y1="80" x2="130" y2="40" stroke="#2563EB" strokeWidth={1.5} />
+                      <line x1="130" y1="40" x2="210" y2="80" stroke="#2563EB" strokeWidth={1.5} />
+                      <line x1="130" y1="40" x2="130" y2="120" stroke="#2563EB" strokeWidth={1.5} />
+
+                      {/* Nodes */}
+                      <circle cx="50" cy="80" r="10" fill="#F59E0B" />
+                      <text x="50" y="98" textAnchor="middle" fontSize={8} fontWeight="bold" fill="#374151">P-101A</text>
+                      
+                      <circle cx="130" cy="40" r="12" fill="#2563EB" />
+                      <text x="130" y="24" textAnchor="middle" fontSize={8} fontWeight="bold" fill="#374151">INC-401</text>
+
+                      <circle cx="210" cy="80" r="10" fill="#DC2626" />
+                      <text x="210" y="98" textAnchor="middle" fontSize={8} fontWeight="bold" fill="#374151">Risk</text>
+
+                      <circle cx="130" cy="120" r="10" fill="#8B5CF6" />
+                      <text x="130" y="138" textAnchor="middle" fontSize={8} fontWeight="bold" fill="#374151">HWP-089</text>
+                    </svg>
+                  </div>
+
+                  <div className="space-y-1.5 text-[11px]">
+                    <div className="flex justify-between border-b border-gray-100 pb-1">
+                      <span>Query latency:</span>
+                      <span className="font-mono font-semibold">18ms</span>
+                    </div>
+                    <div className="flex justify-between border-b border-gray-100 pb-1">
+                      <span>Evaluated relations:</span>
+                      <span className="font-mono font-semibold">12 edges</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Related Assets / Incidents list footer */}
+              <div className="border-t border-gray-200 mt-6 pt-4 space-y-3">
+                <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Connected Entities</span>
+                
+                {/* Related Assets */}
+                {activeInspectorMsg.relatedAssets && activeInspectorMsg.relatedAssets.length > 0 && (
+                  <div className="space-y-1.5">
+                    <span className="text-gray-500 block text-[10px]">Linked Equipment</span>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {activeInspectorMsg.relatedAssets.map(assetId => (
+                        <Link 
+                          key={assetId}
+                          href={`/twin?id=${assetId}`}
+                          className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 rounded font-mono font-bold"
+                        >
+                          {assetId}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Related Incidents */}
+                {activeInspectorMsg.relatedIncidents && activeInspectorMsg.relatedIncidents.length > 0 && (
+                  <div className="space-y-1.5 mt-2">
+                    <span className="text-gray-500 block text-[10px]">Related Incidents (RCA)</span>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {activeInspectorMsg.relatedIncidents.map(incId => (
+                        <Link 
+                          key={incId}
+                          href={`/maintenance?tab=rca&incidentId=${incId}`}
+                          className="px-2 py-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded font-bold"
+                        >
+                          {incId}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </React.Fragment>
+          )}
+        </div>
+
+        {/* Right Footer Download Report */}
+        {activeInspectorMsg && (
+          <div className="p-3 border-t border-gray-200 bg-gray-50">
+            <button 
+              onClick={() => alert("Generating unified PDF document containing full multi-agent diagnostic trace, RAG citations, and Cypher paths...")}
+              className="w-full flex items-center justify-center gap-1.5 bg-[#16A34A] hover:bg-green-700 text-white rounded py-1.5 text-xs font-semibold shadow-sm focus:outline-none"
+            >
+              <span>Download Diagnostic Report</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+    </div>
+  );
+}
