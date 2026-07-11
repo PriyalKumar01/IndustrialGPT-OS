@@ -8,7 +8,7 @@ import * as mockDb from "./mock-db";
 const DELAY_MS = 300; // Simulated network delay
 
 // Toggle this to true to redirect to a live local FastAPI backend
-const USE_REAL_API = false;
+const USE_REAL_API = typeof window !== "undefined" && (localStorage.getItem("USE_REAL_API") === "true" || process.env.NEXT_PUBLIC_USE_REAL_API === "true");
 const API_BASE_URL = "http://localhost:8000/api";
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
