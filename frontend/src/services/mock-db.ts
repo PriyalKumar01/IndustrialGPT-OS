@@ -243,3 +243,214 @@ export const mockAssets: AssetTwin[] = [
     type: "Compressor",
     status: "Fault",
     healthScore: 45,
+    failureProbability: 0.95,
+    remainingUsefulLife: 0,
+    location: "Sector 3 - Gas Compression Station",
+    manufacturer: "Dresser-Rand",
+    model: "HOS 4-2 / 2-Throw",
+    installDate: "2019-11-20",
+    runtimeHours: 48900,
+    lastMaintenance: "2026-06-15",
+    nextMaintenance: "2026-07-15",
+    alerts: [
+      "Trip Active: Stage 2 Discharge Valve Temperature Exceeded Limit (142°C)",
+      "Discharge Pressure Drop below 4.5 MPa"
+    ],
+    openIncidentsCount: 1,
+    relatedDocuments: ["doc-3"],
+    complianceStatus: "Pending Review",
+    aiRecommendation: "Stage 2 discharge valve leakage detected. Replace valves on Cylinder B. Run a pressure safety valve (PSV) override check prior to restarting.",
+    maintenanceCostEstimate: 28000,
+    downtimeEstimateHours: 24,
+    severityClass: "Critical",
+    telemetry: {
+      temperature: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 92 + Math.random() * 4 + (i > 12 ? 30 + Math.random() * 12 : 0) })),
+      pressure: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 5.2 + Math.random() * 0.1 - (i > 14 ? 1.2 : 0) })),
+      vibration: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 4.8 + Math.random() * 0.3 + (i > 12 ? 1.5 : 0) })),
+      oilContamination: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 30 + Math.random() * 1 }))
+    },
+    degradationCurve: Array.from({ length: 20 }).map((_, i) => {
+      const hours = i * 20;
+      return {
+        hours,
+        normal: Math.max(100 - i * 0.8, 84),
+        predicted: Math.max(100 - i * 2.5 - (i > 8 ? (i - 8) * 6 : 0), 0)
+      };
+    })
+  },
+  {
+    id: "FCV-204",
+    name: "Feedwater Flow Control Valve",
+    tag: "TX-ALPHA-FCV-204",
+    type: "Valve",
+    status: "Running",
+    healthScore: 92,
+    failureProbability: 0.08,
+    remainingUsefulLife: 4200,
+    location: "Sector 1 - Boiler Feed Area",
+    manufacturer: "Fisher Controls",
+    model: "Easy-Drive ET Sliding Stem",
+    installDate: "2024-03-10",
+    runtimeHours: 18500,
+    lastMaintenance: "2026-02-18",
+    nextMaintenance: "2026-09-15",
+    alerts: [],
+    openIncidentsCount: 0,
+    relatedDocuments: ["doc-1", "doc-2", "doc-4"],
+    complianceStatus: "Compliant",
+    aiRecommendation: "Operating normally. Routine packing gland check recommended during next scheduled plant shutdown.",
+    maintenanceCostEstimate: 1200,
+    downtimeEstimateHours: 2,
+    severityClass: "Low",
+    telemetry: {
+      temperature: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 45 + Math.random() * 2 })),
+      pressure: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 5.6 + Math.random() * 0.05 })),
+      vibration: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 0.8 + Math.random() * 0.1 })),
+      oilContamination: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 10 + Math.random() * 0.5 }))
+    },
+    degradationCurve: Array.from({ length: 20 }).map((_, i) => {
+      const hours = i * 200;
+      return {
+        hours,
+        normal: 100 - i * 0.5,
+        predicted: 100 - i * 0.6
+      };
+    })
+  },
+  {
+    id: "GT-401",
+    name: "Gas Turbine Generator",
+    tag: "TX-ALPHA-GTG-401",
+    type: "Turbine",
+    status: "Running",
+    healthScore: 84,
+    failureProbability: 0.18,
+    remainingUsefulLife: 1800,
+    location: "Sector 2 - Power Generation Block",
+    manufacturer: "GE Power",
+    model: "LM2500+ Aero-derivative",
+    installDate: "2020-08-05",
+    runtimeHours: 42100,
+    lastMaintenance: "2026-04-10",
+    nextMaintenance: "2026-10-10",
+    alerts: ["Exhaust Gas Temperature Spread Warning - Deviation: 18°C (Limit: 22°C)"],
+    openIncidentsCount: 0,
+    relatedDocuments: [],
+    complianceStatus: "Compliant",
+    aiRecommendation: "Perform fuel nozzle inspection during next shutdown. The EGT (Exhaust Gas Temperature) spread is trending upwards, indicating possible fuel flow restriction in injector combustor cans #4 and #5.",
+    maintenanceCostEstimate: 85000,
+    downtimeEstimateHours: 48,
+    severityClass: "Medium",
+    telemetry: {
+      temperature: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 480 + Math.random() * 8 + (i > 18 ? 12 : 0) })),
+      pressure: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 1.8 + Math.random() * 0.02 })),
+      vibration: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 1.5 + Math.random() * 0.1 })),
+      oilContamination: Array.from({ length: 24 }).map((_, i) => ({ timestamp: `${i}:00`, value: 18 + Math.random() * 0.4 }))
+    },
+    degradationCurve: Array.from({ length: 20 }).map((_, i) => {
+      const hours = i * 150;
+      return {
+        hours,
+        normal: 100 - i * 0.3,
+        predicted: 100 - i * 0.7
+      };
+    })
+  }
+];
+
+export const mockAIAgents: AIAgent[] = [
+  {
+    id: "agent-planner",
+    name: "Planner Agent",
+    status: "Idle",
+    currentTask: "None",
+    queueLength: 0,
+    tokensProcessed: 1245000,
+    runtimeMs: 180,
+    successRate: 99.4,
+    dependencies: [],
+    processingTimeline: [240, 180, 210, 190, 175, 180, 190, 182],
+    previousExecutions: [
+      { taskId: "task-1021", runtimeMs: 180, status: "Success", timestamp: "2026-07-10T13:40:02Z", taskDescription: "Deconstruct user request regarding C-302 compressor valve failure and orchestrate sub-agent routing." }
+    ],
+    thinkingLog: [
+      "PLANNER: Received input 'Analyze current alert on P-101A and draft preventive actions'.",
+      "PLANNER: Analyzing intent. Key assets identified: P-101A. Key domains: Maintenance, Root Cause, Compliance.",
+      "PLANNER: Routing query to Retrieval Agent for P-101A datasheets and Emergency shutdown SOPs.",
+      "PLANNER: Routing request to Knowledge Graph Agent for P-101A relationships.",
+      "PLANNER: Scheduling Maintenance Agent to calculate RUL and current telemetry degradation.",
+      "PLANNER: Output plans generated and sent to execution queue."
+    ]
+  },
+  {
+    id: "agent-retrieval",
+    name: "Retrieval Agent (RAG)",
+    status: "Idle",
+    currentTask: "None",
+    queueLength: 0,
+    tokensProcessed: 4890000,
+    runtimeMs: 420,
+    successRate: 98.7,
+    dependencies: ["agent-planner"],
+    processingTimeline: [450, 480, 410, 460, 430, 420, 395, 412],
+    previousExecutions: [
+      { taskId: "task-1022", runtimeMs: 412, status: "Success", timestamp: "2026-07-10T13:40:03Z", taskDescription: "Retrieve relevant vector chunks for Fisher valve maintenance logs." }
+    ],
+    thinkingLog: [
+      "RETRIEVAL: Query parameters: 'P-101A cavitation thresholds', 'Feedwater pump suction limits'.",
+      "RETRIEVAL: Querying ChromaDB collection 'plant_manuals'. Target threshold: similarity > 0.72.",
+      "RETRIEVAL: Found 4 candidate chunks inside Feed_Water_Pump_P101A_Vendor_Manual.pdf (doc-1).",
+      "RETRIEVAL: Found 2 chunks inside SOP_Boiler_Feed_Water_Emergency_Shutdown.pdf (doc-2).",
+      "RETRIEVAL: Performing re-ranking of results. Cross-Encoder score computed.",
+      "RETRIEVAL: Extracted relevant evidence. Transmitting to Synthesizer and Evidence Panel."
+    ]
+  },
+  {
+    id: "agent-kg",
+    name: "Knowledge Graph Agent",
+    status: "Idle",
+    currentTask: "None",
+    queueLength: 0,
+    tokensProcessed: 950000,
+    runtimeMs: 310,
+    successRate: 100.0,
+    dependencies: ["agent-planner"],
+    processingTimeline: [320, 350, 290, 310, 340, 305, 310, 308],
+    previousExecutions: [
+      { taskId: "task-1023", runtimeMs: 308, status: "Success", timestamp: "2026-07-10T13:40:03Z", taskDescription: "Execute Cypher query for C-302 downstream assets and active permits." }
+    ],
+    thinkingLog: [
+      "KG_AGENT: Initializing Cypher query: MATCH (a:Asset {id: 'P-101A'})-[:LOCATED_AT]->(p:Plant) RETURN a, p...",
+      "KG_AGENT: Query executed on Neo4j in 18ms.",
+      "KG_AGENT: Found active links: P-101A is LOCATED_AT Sector 1, MAINTAINED_BY Elena Rostova, AFFECTED_BY Incident INC-401, REQUIRES_PERMIT HWP-2026-089.",
+      "KG_AGENT: Extracting neighborhood sub-graph. 8 nodes and 12 relationships compiled.",
+      "KG_AGENT: Pushing graph context to Planner for downstream agent visibility."
+    ]
+  },
+  {
+    id: "agent-maintenance",
+    name: "Maintenance Agent",
+    status: "Idle",
+    currentTask: "None",
+    queueLength: 0,
+    tokensProcessed: 1850000,
+    runtimeMs: 540,
+    successRate: 97.2,
+    dependencies: ["agent-planner", "agent-retrieval"],
+    processingTimeline: [590, 560, 580, 520, 540, 535, 520, 542],
+    previousExecutions: [
+      { taskId: "task-1024", runtimeMs: 542, status: "Success", timestamp: "2026-07-10T13:40:04Z", taskDescription: "Estimate Remaining Useful Life (RUL) for Pump P-101A using particle filtering telemetry model." }
+    ],
+    thinkingLog: [
+      "MAINTENANCE: Analyzing telemetry stream for P-101A.",
+      "MAINTENANCE: Input metrics: Radial DE Vibration = 7.2 mm/s, NDE Bearing Temp = 86.4°C.",
+      "MAINTENANCE: Computing exponential degradation path. Baseline alpha = 0.0024, drift = 0.045.",
+      "MAINTENANCE: Critical threshold crossing predicted in 42 hours (95% CI: 36-48 hours).",
+      "MAINTENANCE: Identifying failures: high probability of impeller cavitation and wear ring erosion.",
+      "MAINTENANCE: Recommendation: Swap to auxiliary pump P-101B. Inspect suction strainer."
+    ]
+  },
+  {
+    id: "agent-compliance",
+    name: "Compliance Agent",
+    status: "Idle",
