@@ -125,3 +125,130 @@ export default function SystemHealthPage() {
             {/* List of services status */}
             <div className="space-y-2 flex-1 overflow-y-auto">
               <span className="font-bold text-gray-900 uppercase tracking-wider block text-[10px]">Active Service list</span>
+              <div className="space-y-2.5">
+                {services.map((s) => (
+                  <div key={s.name} className="flex flex-col gap-1.5 p-2.5 border border-gray-200 rounded-sharp hover:bg-gray-50 transition-all-custom">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-gray-900">{s.name}</span>
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#16A34A]" />
+                    </div>
+                    <div className="text-[10px] text-gray-500 flex justify-between">
+                      <span>Type: {s.type}</span>
+                      <span>Latency: <strong className="text-gray-700 font-mono font-semibold">{s.latency}</strong></span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 leading-normal">
+                      {s.details}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Center: Interactive animated Architecture Diagram */}
+        <div className="flex-1 bg-white border border-gray-200 rounded-sharp shadow-subtle relative overflow-hidden flex flex-col">
+          <div className="absolute top-3 left-3 flex gap-1 bg-white/95 border border-gray-200 rounded px-2.5 py-1.5 shadow-sm z-10 text-[10px] font-bold text-gray-900 uppercase tracking-wider">
+            System Architecture Schematic Map
+          </div>
+
+          <div className="flex-1 w-full h-full p-4 flex items-center justify-center">
+            <svg className="w-full h-full max-h-[460px] max-w-[620px]" viewBox="0 0 600 440" preserveAspectRatio="xMidYMid meet">
+              
+              {/* Architecture Links */}
+              {/* NextJS -> FastAPI */}
+              <line x1="300" y1="40" x2="300" y2="90" stroke="#E5E7EB" strokeWidth="2.5" />
+              {/* FastAPI -> LangGraph */}
+              <line x1="300" y1="120" x2="300" y2="170" stroke="#E5E7EB" strokeWidth="2.5" />
+              {/* LangGraph -> Planner */}
+              <line x1="300" y1="170" x2="200" y2="220" stroke="#E5E7EB" strokeWidth="2" />
+              {/* Planner -> Retriever */}
+              <line x1="200" y1="220" x2="100" y2="270" stroke="#E5E7EB" strokeWidth="2" />
+              {/* Planner -> KG Agent */}
+              <line x1="200" y1="220" x2="200" y2="270" stroke="#E5E7EB" strokeWidth="2" />
+              {/* Retriever -> ChromaDB */}
+              <line x1="100" y1="300" x2="100" y2="350" stroke="#E5E7EB" strokeWidth="2" />
+              {/* KG Agent -> Neo4j */}
+              <line x1="200" y1="300" x2="200" y2="350" stroke="#E5E7EB" strokeWidth="2" />
+              {/* FastAPI -> Celery */}
+              <line x1="300" y1="120" x2="480" y2="220" stroke="#E5E7EB" strokeWidth="2" />
+              {/* Celery -> Postgres */}
+              <line x1="480" y1="250" x2="400" y2="350" stroke="#E5E7EB" strokeWidth="2" />
+              {/* LangGraph -> Gemini */}
+              <line x1="300" y1="170" x2="480" y2="350" stroke="#E5E7EB" strokeWidth="2.5" />
+
+              {/* Animated pulses */}
+              <circle r="3.5" fill="#2563EB">
+                <animateMotion path="M 300 40 L 300 90" dur="1.5s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#10B981">
+                <animateMotion path="M 300 120 L 300 170" dur="2.0s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3" fill="#F59E0B">
+                <animateMotion path="M 200 220 L 100 270" dur="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3" fill="#F59E0B">
+                <animateMotion path="M 200 220 L 200 270" dur="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle r="3.5" fill="#8B5CF6">
+                <animateMotion path="M 300 170 L 480 350" dur="2.5s" repeatCount="indefinite" />
+              </circle>
+
+              {/* Node boxes */}
+              {/* Next.js Frontend */}
+              <rect x="220" y="10" width="160" height="30" rx="4" fill="#101418" stroke="#263040" strokeWidth="1.5" />
+              <text x="300" y="29" textAnchor="middle" fill="#FFFFFF" fontSize="9.5" fontWeight="bold">Next.js React Client</text>
+
+              {/* FastAPI Gateway */}
+              <rect x="220" y="90" width="160" height="30" rx="4" fill="#0EA5E9" />
+              <text x="300" y="109" textAnchor="middle" fill="#FFFFFF" fontSize="9.5" fontWeight="bold">FastAPI REST Gateway</text>
+
+              {/* LangGraph Orchestrator */}
+              <rect x="210" y="170" width="180" height="30" rx="4" fill="#8B5CF6" />
+              <text x="300" y="189" textAnchor="middle" fill="#FFFFFF" fontSize="9.5" fontWeight="bold">LangGraph Orchestrator</text>
+
+              {/* Planner Agent */}
+              <rect x="130" y="220" width="140" height="24" rx="4" fill="#6B7280" />
+              <text x="200" y="235" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Planner Agent</text>
+
+              {/* Retriever */}
+              <rect x="40" y="270" width="110" height="30" rx="4" fill="#2563EB" />
+              <text x="95" y="288" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Retriever (RAG)</text>
+
+              {/* KG Agent */}
+              <rect x="160" y="270" width="110" height="30" rx="4" fill="#2563EB" />
+              <text x="215" y="288" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">KG Agent</text>
+
+              {/* Databases */}
+              {/* ChromaDB */}
+              <rect x="30" y="350" width="100" height="30" rx="4" fill="#111827" />
+              <text x="80" y="368" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Chroma Vector DB</text>
+
+              {/* Neo4j */}
+              <rect x="140" y="350" width="90" height="30" rx="4" fill="#111827" />
+              <text x="185" y="368" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Neo4j Graph DB</text>
+
+              {/* PostgreSQL */}
+              <rect x="240" y="350" width="100" height="30" rx="4" fill="#111827" />
+              <text x="290" y="368" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Postgres (Audit)</text>
+
+              {/* Celery */}
+              <rect x="430" y="220" width="110" height="30" rx="4" fill="#F59E0B" />
+              <text x="485" y="238" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Celery Workers</text>
+
+              {/* Redis */}
+              <rect x="350" y="350" width="80" height="30" rx="4" fill="#DC2626" />
+              <text x="390" y="368" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Redis Event broker</text>
+
+              {/* LLM */}
+              <rect x="440" y="350" width="110" height="30" rx="4" fill="#16A34A" />
+              <text x="495" y="368" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="bold">Gemini 1.5 API</text>
+
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
