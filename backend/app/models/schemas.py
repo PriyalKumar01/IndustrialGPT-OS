@@ -77,3 +77,5 @@ class SystemNotificationDTO(BaseModel):
     is_read: bool
     action_url: Optional[str] = None
     action_label: Optional[str] = None
+
+# schema validation: type annotations added to match direct API service requirements
