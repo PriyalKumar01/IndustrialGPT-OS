@@ -215,3 +215,100 @@ export const apiService = {
   },
 
   getAssetTwin: async (id: string): Promise<AssetTwin | null> => {
+    await wait(DELAY_MS);
+    const asset = stateAssets.find(a => a.id === id);
+    return asset || null;
+  },
+
+  // Knowledge Graph
+  getGraph: async (): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> => {
+    await wait(DELAY_MS);
+    
+    // Sync graph nodes with any newly uploaded documents
+    const nodes = [...mockDb.mockGraph.nodes];
+    const edges = [...mockDb.mockGraph.edges];
+
+    stateDocuments.forEach(doc => {
+      if (!nodes.some(n => n.id === doc.id)) {
+        nodes.push({
+          id: doc.id,
+          label: doc.name.substring(0, 24) + "...",
+          type: "Document",
+          properties: { date: doc.uploadDate.split("T")[0], author: doc.author }
+        });
+        
+        // Link to plant
+        edges.push({
+          id: `e-doc-plant-${doc.id}`,
+          source: doc.id,
+          target: "Plant-TX",
+          type: "Located At"
+        });
+
+        // Link to equipment if any
+        doc.linkedAssets.forEach(assetId => {
+          edges.push({
+            id: `e-doc-asset-${doc.id}-${assetId}`,
+            source: assetId,
+            target: doc.id,
+            type: "Connected To"
+          });
+        });
+      }
+    });
+
+    return { nodes, edges };
+  },
+
+  // Incident & Root Cause Analysis
+  getRCA: async (incidentId: string): Promise<RootCauseAnalysis | null> => {
+    await wait(DELAY_MS);
+    const rca = mockDb.mockIncidents.find(i => i.incidentId === incidentId || i.id === incidentId);
+    return rca || null;
+  },
+
+  getIncidentsList: async (): Promise<RootCauseAnalysis[]> => {
+    await wait(DELAY_MS);
+    return mockDb.mockIncidents;
+  },
+
+  // Compliance Management
+  getCompliance: async (): Promise<ComplianceScoreCard> => {
+    await wait(DELAY_MS);
+    return stateCompliance;
+  },
+
+  addCorrectiveAction: async (action: Omit<ComplianceScoreCard["correctiveActions"][0], "id" | "status">): Promise<ComplianceScoreCard> => {
+    await wait(DELAY_MS);
+    const newAction = {
+      ...action,
+      id: `ca-${stateCompliance.correctiveActions.length + 1}`,
+      status: "Open" as const
+    };
+    stateCompliance.correctiveActions = [newAction, ...stateCompliance.correctiveActions];
+    saveState();
+    return stateCompliance;
+  },
+
+  updateCorrectiveActionStatus: async (id: string, status: "Open" | "In Progress" | "Completed"): Promise<ComplianceScoreCard> => {
+    await wait(100);
+    stateCompliance.correctiveActions = stateCompliance.correctiveActions.map(ca => 
+      ca.id === id ? { ...ca, status } : ca
+    );
+    saveState();
+    return stateCompliance;
+  },
+
+  // AI Configuration Management
+  getAIConfig: async (): Promise<AIModelConfig> => {
+    await wait(DELAY_MS);
+    return stateModelConfig;
+  },
+
+  updateAIConfig: async (config: Partial<AIModelConfig>): Promise<AIModelConfig> => {
+    await wait(DELAY_MS);
+    stateModelConfig = { ...stateModelConfig, ...config };
+    saveState();
+    return stateModelConfig;
+  },
+
