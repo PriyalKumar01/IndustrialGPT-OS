@@ -312,3 +312,76 @@ export const apiService = {
     return stateModelConfig;
   },
 
+  // Integrations Hub
+  getIntegrations: async (): Promise<SystemIntegration[]> => {
+    await wait(DELAY_MS);
+    return stateIntegrations;
+  },
+
+  syncIntegration: async (id: string): Promise<SystemIntegration> => {
+    await wait(1500); // Syncing takes longer
+    stateIntegrations = stateIntegrations.map(int => {
+      if (int.id === id) {
+        return {
+          ...int,
+          status: "Active" as const,
+          syncDate: new Date().toISOString(),
+          recordsSynced: int.recordsSynced + Math.floor(Math.random() * 5000) + 500
+        };
+      }
+      return int;
+    });
+    saveState();
+    return stateIntegrations.find(int => int.id === id)!;
+  },
+
+  toggleIntegrationConnection: async (id: string, connected: boolean): Promise<SystemIntegration> => {
+    await wait(DELAY_MS);
+    stateIntegrations = stateIntegrations.map(int => {
+      if (int.id === id) {
+        return {
+          ...int,
+          connected,
+          status: connected ? "Active" as const : "Inactive" as const,
+          syncDate: connected ? new Date().toISOString() : int.syncDate
+        };
+      }
+      return int;
+    });
+    saveState();
+    return stateIntegrations.find(int => int.id === id)!;
+  },
+
+  // Multi-Agent Copilot Reasoning Stream
+  // Emulates LangGraph node-by-node execution with delay for real-time visualization
+  askAICopilot: async (
+    query: string,
+    history: { role: "user" | "assistant"; content: string }[],
+    role: UserRole,
+    onStepUpdate: (step: {
+      agentId: string;
+      agentName: string;
+      status: string;
+      thinking: string;
+      completed: boolean;
+      activeNode?: string;
+    }) => void
+  ): Promise<{
+    answer: string;
+    citations: { text: string; source: string; link: string }[];
+    confidence: number;
+    relatedAssets: string[];
+    relatedIncidents: string[];
+    kgPath: { nodes: string[]; edges: string[] };
+    alternativeActions: string[];
+    complianceImpact: string;
+  }> => {
+    const activeAgents = [...mockDb.mockAIAgents];
+
+    // Node 1: Planner Agent
+    onStepUpdate({ agentId: "agent-planner", agentName: "Planner Agent", status: "Thinking", thinking: "Analyzing query and mapping execution strategy...", completed: false, activeNode: "Planner" });
+    await wait(800);
+    onStepUpdate({ agentId: "agent-planner", agentName: "Planner Agent", status: "Idle", thinking: "Query parsed. Routing parameters: P-101A, RAG documents, Neo4j sub-graph, predictive RUL.", completed: true, activeNode: "Planner" });
+
+    // Node 2: Retrieval Agent
+    onStepUpdate({ agentId: "agent-retrieval", agentName: "Retrieval Agent (RAG)", status: "Thinking", thinking: "Searching vector space in collection 'plant_manuals' for query-related chunks...", completed: false, activeNode: "Retriever" });
