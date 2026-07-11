@@ -482,3 +482,5 @@ Feed Water Pump **P-101A** is displaying critical mechanical degradation indicat
     };
   }
 };
+
+// Refactor notes: Optimized network delay parameter to 200ms for faster UI response in local mode.
