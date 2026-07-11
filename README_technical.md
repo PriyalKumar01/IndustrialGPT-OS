@@ -72,8 +72,8 @@ Instead of passing a query directly to a single LLM, IndustrialGPT OS routes que
 ```mermaid
 graph TD
     Start([User Query]) --> Planner[Planner Agent]
-    Planner -->|Parallel Call| Retriever[Retrieval Agent (ChromaDB)]
-    Planner -->|Parallel Call| Graph[Knowledge Graph Agent (Neo4j)]
+    Planner -->|Parallel Call| Retriever["Retrieval Agent (ChromaDB)"]
+    Planner -->|Parallel Call| Graph["Knowledge Graph Agent (Neo4j)"]
     Planner -->|Parallel Call| Spec[Specialist Agents]
     
     subgraph Specialists ["Specialist Agents"]
