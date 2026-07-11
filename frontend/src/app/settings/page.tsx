@@ -154,3 +154,160 @@ export default function SettingsPage() {
                       <div className="flex justify-between">
                         <span>Status:</span>
                         <span className={int.status === "Active" || int.status === "Syncing" ? "text-green-600" : "text-gray-400"}>{int.status}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Records:</span>
+                        <span className="font-mono">{int.recordsSynced.toLocaleString()} logs</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Last Synced:</span>
+                        <span className="font-mono">{int.syncDate === "Never" ? "Never" : new Date(int.syncDate).toLocaleTimeString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Sync Trigger */}
+                    {int.connected && (
+                      <button
+                        onClick={() => handleSync(int.id)}
+                        disabled={isSyncing}
+                        className="w-full flex items-center justify-center gap-1 bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 py-1 rounded text-[11px] font-semibold focus:outline-none"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${isSyncing ? "animate-spin" : ""}`} />
+                        <span>{isSyncing ? "Syncing..." : "Sync Database"}</span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* AI Model Hyperparameter Manager */}
+          <div className="bg-white border border-gray-200 rounded-sharp p-4 shadow-subtle shrink-0">
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider block mb-3.5">AI Model hyperparameter Manager</span>
+            
+            <form onSubmit={handleSaveModelConfig} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                {/* Model Selector */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-gray-500 font-medium">Core Reasoning Model (LLM):</label>
+                  <select
+                    value={tempConfig.currentModel}
+                    onChange={(e) => setTempConfig(prev => ({ ...prev, currentModel: e.target.value }))}
+                    className="border border-gray-300 rounded p-2 focus:outline-none focus:border-[#2563EB] bg-white cursor-pointer"
+                  >
+                    <option value="Gemini 1.5 Pro (Enterprise)">Gemini 1.5 Pro (Enterprise)</option>
+                    <option value="Gemini 1.5 Flash (Fast)">Gemini 1.5 Flash (Fast)</option>
+                    <option value="GPT-4o (OpenAI Cloud)">GPT-4o (OpenAI Cloud)</option>
+                  </select>
+                </div>
+
+                {/* Embedding Selector */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-gray-500 font-medium">Vector Embedding Model:</label>
+                  <select
+                    value={tempConfig.embeddingModel}
+                    onChange={(e) => setTempConfig(prev => ({ ...prev, embeddingModel: e.target.value }))}
+                    className="border border-gray-300 rounded p-2 focus:outline-none focus:border-[#2563EB] bg-white cursor-pointer"
+                  >
+                    <option value="Text-Embedding-004 (Google)">Text-Embedding-004 (Google)</option>
+                    <option value="text-embedding-3-large (OpenAI)">text-embedding-3-large (OpenAI)</option>
+                  </select>
+                </div>
+
+              </div>
+
+              {/* Temperature Slider */}
+              <div className="flex flex-col gap-1.5">
+                <div className="flex justify-between font-medium">
+                  <label className="text-gray-500">Model Temperature (Creativity vs Safety):</label>
+                  <span className="font-mono font-bold text-gray-900">{tempConfig.temperature}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.05"
+                  value={tempConfig.temperature}
+                  onChange={(e) => setTempConfig(prev => ({ ...prev, temperature: parseFloat(e.target.value) }))}
+                  className="w-full accent-[#2563EB]"
+                />
+              </div>
+
+              {/* Model Billing Rates */}
+              <div className="grid grid-cols-2 gap-4 text-[11px] bg-gray-50 border border-gray-150 p-2.5 rounded font-semibold text-gray-600">
+                <div className="flex justify-between">
+                  <span>Context limit:</span>
+                  <span className="font-mono text-gray-900">1.04M tokens</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Prompt schema:</span>
+                  <span className="font-mono text-gray-900">{tempConfig.promptVersion}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded px-4 py-2 font-semibold shadow-sm focus:outline-none"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>Save Configs</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        {/* Right Side: RBAC Matrix */}
+        <div className="w-96 bg-white border border-gray-200 rounded-sharp shadow-subtle flex flex-col overflow-hidden shrink-0">
+          {/* Header */}
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-[#2563EB]" />
+              <span className="font-semibold text-xs text-gray-900 uppercase tracking-wider">RBAC permissions Matrix</span>
+            </div>
+          </div>
+
+          {/* Table Body */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">Security Rule Mapping</span>
+            
+            <div className="space-y-3.5">
+              {permissionsMatrix.map((row) => (
+                <div key={row.permission} className="p-3 border border-gray-200 rounded bg-gray-50 space-y-2">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-gray-950">{row.permission}</span>
+                    <span className="text-[10.5px] text-gray-500 leading-normal mt-0.5">{row.desc}</span>
+                  </div>
+                  <div className="flex gap-1 flex-wrap mt-1">
+                    {row.roles.map(role => (
+                      <span key={role} className="bg-white border border-gray-200 text-gray-700 px-1.5 py-0.5 rounded text-[9px] font-semibold">
+                        {role.split(" ").map(w => w[0]).join("")} {/* Abbreviated roles */}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-2.5 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-500 leading-normal">
+              ℹ️ Role abbreviation legend:
+              <div className="grid grid-cols-3 gap-1.5 mt-1.5 font-bold font-mono">
+                <div>PO: Operator</div>
+                <div>ME: Engineer</div>
+                <div>CO: Compliance</div>
+                <div>OM: Manager</div>
+                <div>PA: Admin</div>
+                <div>EX: Executive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
