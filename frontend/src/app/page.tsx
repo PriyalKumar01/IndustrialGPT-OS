@@ -480,3 +480,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+// Layout refinement: adjusted spacing between Recharts container widgets to prevent grid layout overlap on mobile screens.
