@@ -115,3 +115,121 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } else if (role === "Plant Operator" || role === "Maintenance Engineer") {
       setExecutiveMode("operator");
     } else {
+      setExecutiveMode("manager");
+    }
+
+    return updatedUser;
+  };
+
+  const login = async (email: string, role: UserRole): Promise<boolean> => {
+    const list = [
+      { id: "u-1", name: "Marcus Vance", email: "m.vance@industrialgpt.os", role: "Plant Operator" as const, plantId: "TX-ALPHA" },
+      { id: "u-2", name: "Elena Rostova", email: "e.rostova@industrialgpt.os", role: "Maintenance Engineer" as const, plantId: "TX-ALPHA" },
+      { id: "u-3", name: "Siddharth Mehta", email: "s.mehta@industrialgpt.os", role: "Compliance Officer" as const, plantId: "TX-ALPHA" },
+      { id: "u-4", name: "David Chen", email: "d.chen@industrialgpt.os", role: "Operations Manager" as const, plantId: "TX-ALPHA" },
+      { id: "u-5", name: "Thomas Mueller", email: "t.mueller@industrialgpt.os", role: "Plant Administrator" as const, plantId: "TX-ALPHA" },
+      { id: "u-6", name: "Sarah Jenkins", email: "s.jenkins@industrialgpt.os", role: "Executive" as const, plantId: "TX-ALPHA" }
+    ];
+    const matched = list.find(u => u.email.toLowerCase() === email.toLowerCase() && u.role === role);
+    if (matched) {
+      setUser(matched);
+      setIsAuthenticated(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("currentUser", JSON.stringify(matched));
+      }
+      return true;
+    }
+    return false;
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("currentUser");
+    }
+  };
+
+  // Notification Operations
+  const markNotificationRead = async (id: string) => {
+    const updated = await apiService.markNotificationRead(id);
+    setNotifications(updated);
+  };
+
+  const clearAllNotifications = async () => {
+    const updated = await apiService.clearAllNotifications();
+    setNotifications(updated);
+  };
+
+  const addNotification = (notif: Omit<SystemNotification, "id" | "timestamp" | "isRead">) => {
+    const newNotif: SystemNotification = {
+      ...notif,
+      id: `n-gen-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      isRead: false
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+  };
+
+  // AI Config update
+  const updateModelConfig = async (config: Partial<AIModelConfig>) => {
+    const updated = await apiService.updateAIConfig(config);
+    setModelConfig(updated);
+  };
+
+  // Keyboard shortcut listener for Command Palette (CTRL+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  return (
+    <AppContext.Provider
+      value={{
+        user,
+        users: [
+          { id: "u-1", name: "Marcus Vance", email: "m.vance@industrialgpt.os", role: "Plant Operator", plantId: "TX-ALPHA" },
+          { id: "u-2", name: "Elena Rostova", email: "e.rostova@industrialgpt.os", role: "Maintenance Engineer", plantId: "TX-ALPHA" },
+          { id: "u-3", name: "Siddharth Mehta", email: "s.mehta@industrialgpt.os", role: "Compliance Officer", plantId: "TX-ALPHA" },
+          { id: "u-4", name: "David Chen", email: "d.chen@industrialgpt.os", role: "Operations Manager", plantId: "TX-ALPHA" },
+          { id: "u-5", name: "Thomas Mueller", email: "t.mueller@industrialgpt.os", role: "Plant Administrator", plantId: "TX-ALPHA" },
+          { id: "u-6", name: "Sarah Jenkins", email: "s.jenkins@industrialgpt.os", role: "Executive", plantId: "TX-ALPHA" }
+        ],
+        isAuthenticated,
+        login,
+        logout,
+        switchRole,
+        currentPlant,
+        setCurrentPlant,
+        executiveMode,
+        setExecutiveMode,
+        notifications,
+        unreadCount,
+        markNotificationRead,
+        clearAllNotifications,
+        addNotification,
+        commandPaletteOpen,
+        setCommandPaletteOpen,
+        modelConfig,
+        updateModelConfig
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+export function useApp() {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error("useApp must be used within an AppProvider");
+  }
+  return context;
+}
