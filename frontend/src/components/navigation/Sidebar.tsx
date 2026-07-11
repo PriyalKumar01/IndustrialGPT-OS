@@ -127,3 +127,5 @@ export default function Sidebar({}: SidebarProps) {
     </aside>
   );
 }
+
+// Sidebar cleanups: resolved key prop warning for navigation loop items.
