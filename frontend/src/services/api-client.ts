@@ -376,7 +376,25 @@ export const apiService = {
     alternativeActions: string[];
     complianceImpact: string;
   }> => {
-    const activeAgents = [...mockDb.mockAIAgents];
+    // If USE_REAL_API is true, trigger the real API fetch in the background
+    let realResponsePromise: Promise<any> | null = null;
+    if (USE_REAL_API) {
+      realResponsePromise = fetch(`${API_BASE_URL}/agents/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query,
+          history: history.map(h => ({ role: h.role, content: h.content })),
+          role: role
+        })
+      }).then(res => {
+        if (!res.ok) throw new Error("Backend API returned an error");
+        return res.json();
+      }).catch(err => {
+        console.error("Real API error, falling back to mock:", err);
+        return null;
+      });
+    }
 
     // Node 1: Planner Agent
     onStepUpdate({ agentId: "agent-planner", agentName: "Planner Agent", status: "Thinking", thinking: "Analyzing query and mapping execution strategy...", completed: false, activeNode: "Planner" });
@@ -413,8 +431,27 @@ export const apiService = {
     await wait(700);
     onStepUpdate({ agentId: "agent-synthesizer", agentName: "Answer Synthesizer", status: "Idle", thinking: "Markdown document built. Final token billing generated.", completed: true, activeNode: "Evidence Generator" });
 
-    // Final outputs
-    const isP101 = query.toLowerCase().includes("p-101") || query.toLowerCase().includes("pump");
+    // If we have a real response, await it and return the result
+    if (realResponsePromise) {
+      const realRes = await realResponsePromise;
+      if (realRes) {
+        return {
+          answer: realRes.answer,
+          citations: realRes.citations || [],
+          confidence: realRes.confidence || 0.93,
+          relatedAssets: realRes.related_assets || [],
+          relatedIncidents: realRes.related_incidents || [],
+          kgPath: {
+            nodes: realRes.kg_path?.nodes || [],
+            edges: realRes.kg_path?.edges || []
+          },
+          alternativeActions: realRes.alternative_actions || [],
+          complianceImpact: realRes.compliance_impact || ""
+        };
+      }
+    }
+
+    // Default mock response fallback
     const isC302 = query.toLowerCase().includes("c-302") || query.toLowerCase().includes("compressor");
 
     if (isC302) {
@@ -449,7 +486,6 @@ Reciprocating Compressor **C-302** is currently in **Fault** status, triggered b
       };
     }
 
-    // Default or P-101A response
     return {
       answer: `### Executive Summary
 Feed Water Pump **P-101A** is displaying critical mechanical degradation indicators. Vibration on Radial DE has reached **7.2 mm/s** (Limit: 4.5 mm/s), and NDE Bearing Temperature is high at **86.4°C**. Remaining Useful Life (RUL) is estimated at **42 hours** with an 88% probability of imminent failure.
