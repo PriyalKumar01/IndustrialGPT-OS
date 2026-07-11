@@ -233,3 +233,5 @@ export function useApp() {
   }
   return context;
 }
+
+// JSDoc: AppContext manages state for active plant and role-based access control.
