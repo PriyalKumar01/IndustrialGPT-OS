@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndustrialGPT OS - Presentation Slides</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #38BDF8;
+            --primary-dark: #1E3A8A;
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --text-light: #F8FAFC;
+            --text-gray: #94A3B8;
+            --border: #334155;
+            --success: #22C55E;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background-color: #334155;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Slide Layout: A4 Landscape Page Constraint */
+        .slide {
+            background-color: var(--bg-dark);
+            width: 297mm;
+            height: 210mm;
+            margin: 30px auto;
+            padding: 20mm 25mm;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .slide-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .slide-subtitle {
+            font-size: 12px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+
+        .slide-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-gray);
+        }
+
+        /* Visual Components */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .highlight-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--success);
+            margin: 5px 0;
+        }
+
+        /* Lists and tables inside slides */
+        ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        li {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        li strong {
+            color: var(--text-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: var(--bg-card);
+            color: var(--primary);
+            font-weight: 700;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-gray);
+        }
+
+        /* Live Screenshot Frame */
+        .screenshot-frame {
+            border: 1px solid var(--border);
+            background-color: #0F172A;
+            border-radius: 8px;
+            padding: 8px 8px 4px 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .frame-header {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background-color: #EF4444; }
+        .dot.yellow { background-color: #F59E0B; }
+        .dot.green { background-color: #10B981; }
+
+        .screenshot-img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+            background-color: #1E293B;
+            border: 1px solid #334155;
+            object-fit: cover;
+        }
+
+        /* Banner for instructions */
+        .no-print {
+            background-color: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            color: #1E40AF;
+            padding: 15px;
+            max-width: 297mm;
+            margin: 20px auto;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        @media print {
+            body {
+                background-color: #334155;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .slide {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Instructions Banner -->
+    <div class="no-print">
+        <strong>📄 Slide PDF Generation Guideline:</strong><br>
+        1. Open this file in Google Chrome.<br>
+        2. Press <strong>Ctrl + P</strong> (Print).<br>
+        3. Destination: <strong>Save as PDF</strong>. Layout: <strong>Landscape</strong>.<br>
+        4. Enable <strong>Background graphics</strong> in More Settings.<br>
+        This will output a perfectly formatted 6-slide presentation deck.
+    </div>
+
+    <!-- ================= SLIDE 1: COVER ================= -->
+    <div class="slide">
+        <div></div>
+        <div class="slide-content" style="text-align: center;">
+            <h1 style="font-size: 52px; font-weight: 800; color: var(--text-light); margin: 0; letter-spacing: -0.03em;">IndustrialGPT OS</h1>
+            <div style="font-size: 20px; color: var(--primary); font-weight: 600; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.15em;">
+                Unified Asset & Operations Brain
+            </div>
+            <div style="width: 100px; height: 4px; background-color: var(--primary); margin: 30px auto;"></div>
+            <div style="font-size: 14px; color: var(--text-gray); line-height: 1.6;">
+                Integrating RAG and Knowledge Graphs to Resolve Industrial Knowledge Silos<br>
+                <strong>Presenter: Priyal Kumar | Track: Industrial Intelligence</strong>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <span>IndustrialGPT OS — Presentation Slides</span>
+            <span>Slide 1 of 6</span>
+        </div>
+    </div>
+
+    <!-- ================= SLIDE 2: PROBLEM ================= -->
+    <div class="slide">
+        <div class="slide-header">
+            <span class="slide-subtitle">The Industry Challenge</span>
+            <h2 class="slide-title">The Challenge of Knowledge Fragmentation</h2>
+        </div>
+        <div class="slide-content">
+            <div class="grid-2">
+                <div>
+                    <h3 style="color: var(--primary); font-size: 18px; margin-top: 0;">The Industrial Context</h3>
+                    <p style="color: var(--text-gray); font-size: 14px; text-align: justify; line-height: 1.6;">
+                        Modern manufacturing and petrochemical facilities operate with <strong>7 to 12 disconnected software systems</strong> (P&IDs, safety SOPs, telemetry systems, SAP records). Under alarm pressure, search latency causes downtime costing up to **$100,000/hour**.
+                    </p>
+                    <ul>
+                        <li><strong>Retiring Engineers</strong>: 25% of senior workforce retiring within a decade.</li>
+                        <li><strong>Downtime Fines</strong>: Delayed compliance checking leads to safety penalties.</li>
+                    </ul>
+                </div>
+                <div class="grid-2" style="gap: 15px;">
+                    <div class="card" style="text-align: center;">
+                        <span style="font-size: 11px; color: var(--text-gray); text-transform: uppercase;">Search Latency</span>
+                        <div class="highlight-number">35%</div>
+                        <span style="font-size: 11px; color: var(--text-gray);">Of working hours spent searching for manuals (McKinsey)</span>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <span style="font-size: 11px; color: var(--text-gray); text-transform: uppercase;">Downtime Reason</span>
+                        <div class="highlight-number">22%</div>
+                        <span style="font-size: 11px; color: var(--text-gray);">Of unplanned shutdowns caused by missing asset history</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <span>IndustrialGPT OS — Presentation Slides</span>
+            <span>Slide 2 of 6</span>
+        </div>
+    </div>
+
+    <!-- ================= SLIDE 3: INNOVATION ================= -->
+    <div class="slide">
+        <div class="slide-header">
+            <span class="slide-subtitle">Innovation & Architecture</span>
+            <h2 class="slide-title">Why IndustrialGPT OS is Unique</h2>
+        </div>
+        <div class="slide-content">
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-title">🔗 Graph-RAG Hybrid</div>
+                    <p style="font-size: 12px; color: var(--text-gray); line-height: 1.5;">
+                        Standard RAG fails because it splits text into chunks, breaking relationships. We index engineering text in <strong>ChromaDB</strong> and map relations in **Neo4j**, linking document segments directly to physical assets.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🗄️ Triple-DB Layer</div>
+                    <p style="font-size: 12px; color: var(--text-gray); line-height: 1.5;">
+                        A tailored data tier: <br>
+                        1. <strong>Supabase (Postgres)</strong> for relational metadata & logs.<br>
+                        2. <strong>ChromaDB</strong> for high-dimensional semantic search.<br>
+                        3. <strong>Neo4j AuraDB</strong> for structural network paths.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-title">👥 Adaptive RBAC</div>
+                    <p style="font-size: 12px; color: var(--text-gray); line-height: 1.5;">
+                        The dashboard UI changes depending on user roles:<br>
+                        * <strong>Operator</strong>: SCADA digital twins & active alarms.<br>
+                        * <strong>Manager</strong>: Ingestion pipeline logs.<br>
+                        * <strong>Executive</strong>: Business ROI & savings graphs.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <span>IndustrialGPT OS — Presentation Slides</span>
+            <span>Slide 3 of 6</span>
+        </div>
+    </div>
+
+    <!-- ================= SLIDE 4: FEATURES & DEMO ================= -->
+    <div class="slide">
+        <div class="slide-header">
+            <span class="slide-subtitle">Core Features</span>
+            <h2 class="slide-title">Fusing Telemetry with Engineering Knowledge</h2>
+        </div>
+        <div class="slide-content">
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-title">🧠 Agentic Copilot</div>
+                    <p style="font-size: 12px; color: var(--text-gray); line-height: 1.5;">
+                        A multi-agent diagnostic workspace built with <strong>LangGraph</strong>. It shows step-by-step thinking logic, streams response logs, and generates page-link citations.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-title">📈 Predictive RCA</div>
+                    <p style="font-size: 12px; color: var(--text-gray); line-height: 1.5;">
+                        Combines live SCADA alarms with historical incident databases to render automated **Ishikawa (Fishbone) diagrams** for troubleshooting.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-title">🛡️ Safety Compliance</div>
+                    <p style="font-size: 12px; color: var(--text-gray); line-height: 1.5;">
+                        Maps plant actions against regulatory frameworks (like **OISD-117**). Automatically flags expired permits and blocks hazardous actions.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <span>IndustrialGPT OS — Presentation Slides</span>
+            <span>Slide 4 of 6</span>
+        </div>
+    </div>
+
+    <!-- ================= SLIDE 5: LIVE SITE INTERFACE ================= -->
+    <div class="slide">
+        <div class="slide-header">
+            <span class="slide-subtitle">Live Interface Screenshots</span>
+            <h2 class="slide-title">Product Demo & Interactive Screens</h2>
+        </div>
+        <div class="slide-content">
+            <div class="grid-2">
+                <div class="screenshot-frame">
+                    <div class="frame-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <img src="dashboard_screenshot.png" alt="Live Site Dashboard (Please place dashboard_screenshot.png here)" class="screenshot-img" style="height: 160px;">
+                </div>
+                <div class="screenshot-frame">
+                    <div class="frame-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <img src="copilot_screenshot.png" alt="Live Site Copilot Chat (Please place copilot_screenshot.png here)" class="screenshot-img" style="height: 160px;">
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <span>IndustrialGPT OS — Presentation Slides</span>
+            <span>Slide 5 of 6</span>
+        </div>
+    </div>
+
+    <!-- ================= SLIDE 6: ROI & ROADMAP ================= -->
+    <div class="slide">
+        <div class="slide-header">
+            <span class="slide-subtitle">Business Impact</span>
+            <h2 class="slide-title">Financial Value & Future Scope</h2>
+        </div>
+        <div class="slide-content">
+            <div class="grid-2">
+                <div>
+                    <h3 style="color: var(--primary); font-size: 16px; margin-top: 0; margin-bottom: 10px;">Plant Financial Model</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Incident Category</th>
+                                <th>Traditional</th>
+                                <th>IndustrialGPT OS</th>
+                                <th>Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Info Search Time</td>
+                                <td>2.1 hrs/day</td>
+                                <td>12 mins/day</td>
+                                <td><strong>90% efficiency</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Unplanned Downtime</td>
+                                <td>$1.2M / year</td>
+                                <td>$360K / year</td>
+                                <td><strong>$840,000 saved</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Compliance Fines</td>
+                                <td>$150K / year</td>
+                                <td>$0 (checks)</td>
+                                <td><strong>$150,000 saved</strong></td>
+                            </tr>
+                            <tr style="font-weight: bold; background-color: var(--bg-card);">
+                                <td>Total Annual value</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td style="color: var(--success);">$990,000 / plant</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <h3 style="color: var(--primary); font-size: 16px; margin-top: 0; margin-bottom: 10px;">Future Product Roadmap</h3>
+                    <ul>
+                        <li><strong>OPC-UA Live Edge Integrations</strong>: Link live SCADA vibration/flow metrics to Knowledge Graph nodes for real-time prescriptive alerts.</li>
+                        <li><strong>Multi-Modal CAD Drawings Extraction</strong>: Train vision models to extract symbols from P&ID drawing files, automatically building the Neo4j schema.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <span>IndustrialGPT OS — Presentation Slides</span>
+            <span>Slide 6 of 6</span>
+        </div>
+    </div>
+
+</body>
+</html>
